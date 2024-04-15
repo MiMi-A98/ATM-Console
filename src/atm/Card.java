@@ -24,4 +24,8 @@ public class Card {
     public BankAccount getBankAccount() {
         return bankAccount;
     }
+
+    public void changePin(String newPin) {
+        this.pin = newPin;
+    }
 }

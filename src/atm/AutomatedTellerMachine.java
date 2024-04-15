@@ -164,9 +164,27 @@ public class AutomatedTellerMachine {
         display("Enter new pin.");
         String newPin = scan.nextLine();
 
-        // TODO: validate new PIN (4 numbers)
+        try {
+            card.changePin(newPin);
+        } catch (IllegalArgumentException ex) {
+            display("Pin should contain only digits and be a length of four characters!");
+            display("""
+                    Do you want to retry?
+                    1 - Yes
+                    2 - No
+                    """);
 
-        card.changePin(newPin);
+            int option = scan.nextInt();
+
+            switch (option) {
+                case 1 -> changePin();
+                case 2 -> logout();
+                default -> {
+                    display("Invalid option! Try again");
+                    changePin();
+                }
+            }
+        }
+
     }
-
 }

@@ -26,6 +26,10 @@ public class Card {
     }
 
     public void changePin(String newPin) {
-        this.pin = newPin;
+        if (newPin.length() == 4 && newPin.matches("\\d")) {
+            this.pin = newPin;
+        } else {
+            throw new IllegalArgumentException("New pin doesn't fulfill the requirements!");
+        }
     }
 }

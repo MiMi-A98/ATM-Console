@@ -27,12 +27,22 @@ public class BankAccount {
         return balance;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
-    }
-
     public void addCard(Card card) {
         cards.add(card);
     }
+
+    public void deposit(double depositAmount) {
+        this.balance = balance + depositAmount;
+
+    }
+
+    public void withdraw(double withdrawAmount) {
+        if (balance >= withdrawAmount) {
+            this.balance = balance - withdrawAmount;
+        } else {
+            throw new IllegalArgumentException("Provided withdraw amount is larger than balance!");
+        }
+    }
+
 
 }

@@ -35,6 +35,7 @@ public class AutomatedTellerMachine {
                         PIN tries exceeded!
                         Your card has been blocked!
                         """);
+                card.setLocked(true);
                 logout();
             } else {
                 display("Incorrect PIN! Try again!");
@@ -166,7 +167,7 @@ public class AutomatedTellerMachine {
         String newPin = scan.nextLine();
 
         try {
-            card.changePin(newPin);
+            card.setPin(newPin);
         } catch (IllegalArgumentException ex) {
             display("Pin should contain only digits and be a length of four characters!");
             display("""

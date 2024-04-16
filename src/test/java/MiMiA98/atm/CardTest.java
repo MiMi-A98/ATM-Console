@@ -4,8 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class CardTest {
@@ -19,21 +18,34 @@ class CardTest {
     }
 
     @Test
-    void changePin_withNonDigitInput_throwsException() {
-        String newPin = "12c4";
-        assertThrows(IllegalArgumentException.class, () -> card.changePin(newPin));
-    }
-
-    @Test
-    void changePin_withInvalidInputLength_throwsException() {
-        String newPin = "12345";
-        assertThrows(IllegalArgumentException.class, () -> card.changePin(newPin));
-    }
-
-    @Test
-    void changePin_withFourDigitInput_notThrowException() {
+    void setPin_whenCardIsBlocked_throwsException() {
+        card.setLocked(true);
         String newPin = "1234";
-        assertDoesNotThrow(() -> card.changePin(newPin));
+        assertThrows(IllegalStateException.class, () -> card.setPin(newPin));
+    }
+
+    @Test
+    void setPin_cardIsNotBlocked_notThroesException() {
+        String newPin = "1234";
+        assertEquals(newPin, card.getPin());
+    }
+
+    @Test
+    void setPin_withNonDigitInput_throwsException() {
+        String newPin = "12c4";
+        assertThrows(IllegalArgumentException.class, () -> card.setPin(newPin));
+    }
+
+    @Test
+    void setPin_withInvalidInputLength_throwsException() {
+        String newPin = "12345";
+        assertThrows(IllegalArgumentException.class, () -> card.setPin(newPin));
+    }
+
+    @Test
+    void setPin_withFourDigitInput_notThrowException() {
+        String newPin = "1234";
+        assertDoesNotThrow(() -> card.setPin(newPin));
     }
 
 }

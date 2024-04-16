@@ -1,4 +1,4 @@
-package atm;
+package MiMiA98.atm;
 
 import java.util.ArrayList;
 import java.util.Collection;

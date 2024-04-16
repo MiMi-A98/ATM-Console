@@ -1,4 +1,4 @@
-package atm;
+package MiMiA98.atm;
 
 public class Card {
 
@@ -26,7 +26,7 @@ public class Card {
     }
 
     public void changePin(String newPin) {
-        if (newPin.length() == 4 && newPin.matches("\\d")) {
+        if (newPin.matches("\\d{4}")) {
             this.pin = newPin;
         } else {
             throw new IllegalArgumentException("New pin doesn't fulfill the requirements!");

@@ -1,4 +1,4 @@
-package atm;
+package MiMiA98.atm;
 
 import java.util.Scanner;
 
@@ -35,6 +35,7 @@ public class AutomatedTellerMachine {
                         PIN tries exceeded!
                         Your card has been blocked!
                         """);
+                logout();
             } else {
                 display("Incorrect PIN! Try again!");
             }

@@ -2,22 +2,23 @@ package MiMiA98.atm;
 
 public class Card {
 
-    private int cardNumber;
+    private final String cardNumber;
+    private final CheckingAccount checkingAccount;
     private String pin;
-    private boolean isLocked;
+    private boolean isBlocked;
+    private boolean isActivated;
 
-    private BankAccount bankAccount;
 
-
-    public Card(int cardNumber, String pin, BankAccount bankAccount) {
+    public Card(String cardNumber, String pin, CheckingAccount checkingAccount) {
         this.cardNumber = cardNumber;
         this.pin = pin;
-        this.isLocked = false;
-        this.bankAccount = bankAccount;
-        bankAccount.addCard(this);
+        this.isBlocked = false;
+        this.isActivated = false;
+        this.checkingAccount = checkingAccount;
+        this.checkingAccount.addCard(this);
     }
 
-    public int getCardNumber() {
+    public String getCardNumber() {
         return cardNumber;
     }
 
@@ -26,7 +27,7 @@ public class Card {
     }
 
     public void setPin(String newPin) {
-        if (isLocked) {
+        if (isBlocked) {
             throw new IllegalStateException("Card is blocked!");
         } else {
             if (newPin.matches("\\d{4}")) {
@@ -37,15 +38,27 @@ public class Card {
         }
     }
 
-    public boolean isLocked() {
-        return isLocked;
+    public boolean isBlocked() {
+        return isBlocked;
     }
 
-    public void setLocked(boolean locked) {
-        isLocked = locked;
+    public void setBlocked(boolean blocked) {
+        if (!checkingAccount.isClosed()) {
+            isBlocked = blocked;
+        } else {
+            throw new IllegalStateException("Bank account is closed!");
+        }
     }
 
-    public BankAccount getBankAccount() {
-        return bankAccount;
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+    }
+
+    public CheckingAccount getCheckingAccount() {
+        return checkingAccount;
     }
 }

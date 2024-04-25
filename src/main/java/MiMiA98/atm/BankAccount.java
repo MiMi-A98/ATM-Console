@@ -1,52 +1,84 @@
 package MiMiA98.atm;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.math.BigDecimal;
+import java.util.Currency;
 
-public class BankAccount {
-    private int accountNumber;
-    private String currency;
-    private double balance;
-    private UserAccount userAccount;
-    private Collection<Card> cards;
+public abstract class BankAccount {
+    private final int accountCode;
+    private final String accountNumber;
+    private final Currency currency;
+    private final UserAccount userAccount;
+    private BigDecimal balance;
+    private boolean isFrozen;
+    private boolean isClosed;
 
-    public BankAccount(int accountNumber, String currency, double balance, UserAccount userAccount) {
+    protected BankAccount(int accountCode, String accountNumber, String currency, double balance, UserAccount userAccount) {
         this.accountNumber = accountNumber;
-        this.currency = currency;
-        this.balance = balance;
+        this.currency = Currency.getInstance(currency);
+        this.balance = BigDecimal.valueOf(balance);
         this.userAccount = userAccount;
-        userAccount.addBankAccount(this);
-        cards = new ArrayList<>();
+        this.accountCode = accountCode;
+        this.userAccount.addBankAccount(accountCode, this);
     }
 
-    public BankAccount(int accountNumber, String currency, UserAccount userAccount) {
-        this(accountNumber, currency, 0, userAccount);
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void addCard(Card card) {
-        cards.add(card);
-    }
-
-    public void deposit(double depositAmount) {
-        if (depositAmount > 0 ) {
-            this.balance += depositAmount;
-        } else {
-            throw new IllegalArgumentException("Provided deposit amount is less than zero!");
+    public void transfer(BigDecimal transferAmount, BankAccount destinationBankAccount) {
+        if (isClosed) {
+            throw new IllegalStateException("Account is closed!");
+        }
+        if (this.equals(destinationBankAccount)) {
+            throw new IllegalArgumentException("Can't transfer money into the same account!");
         }
 
-    }
 
-    public void withdraw(double withdrawAmount) {
-        if (balance >= withdrawAmount && withdrawAmount > 0) {
-            this.balance = balance - withdrawAmount;
+        if ((this.getBalance().compareTo(transferAmount)) >= 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
+            this.setBalance(this.getBalance().subtract(transferAmount));
+            destinationBankAccount.setBalance(transferAmount.add(getBalance()));
         } else {
             throw new IllegalArgumentException("Provided withdraw amount is larger than balance!");
         }
     }
 
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public String getUserName() {
+        return userAccount.getUserName();
+    }
+
+    public UserAccount getUserAccount() {
+        return userAccount;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public boolean isFrozen() {
+        return isFrozen;
+    }
+
+    public void setFrozen(boolean frozen) {
+        isFrozen = frozen;
+    }
+
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    public void closeAccount() {
+        if (!isClosed) {
+            isClosed = true;
+        }
+    }
 
 }

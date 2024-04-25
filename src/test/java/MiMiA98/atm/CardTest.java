@@ -4,7 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class CardTest {
@@ -13,21 +14,26 @@ class CardTest {
 
     @BeforeEach
     void setUp() {
-        BankAccount bankAccount = Mockito.mock(BankAccount.class);
-        card = new Card(1, "1234", bankAccount);
+        CheckingAccount checkingAccount = Mockito.mock(CheckingAccount.class);
+        card = new Card("1", "1234", checkingAccount);
     }
 
     @Test
     void setPin_whenCardIsBlocked_throwsException() {
-        card.setLocked(true);
+        card.setBlocked(true);
         String newPin = "1234";
         assertThrows(IllegalStateException.class, () -> card.setPin(newPin));
     }
 
     @Test
-    void setPin_cardIsNotBlocked_notThroesException() {
+    void setPin_cardIsNotBlocked_changesPin() {
         String newPin = "1234";
-        assertEquals(newPin, card.getPin());
+        card.setPin(newPin);
+
+        String expected = newPin;
+        String actual = card.getPin();
+
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -43,9 +49,15 @@ class CardTest {
     }
 
     @Test
-    void setPin_withFourDigitInput_notThrowException() {
+    void setPin_withFourDigitInput_changesPin() {
         String newPin = "1234";
-        assertDoesNotThrow(() -> card.setPin(newPin));
+
+        card.setPin(newPin);
+
+        String expected = newPin;
+        String actual = card.getPin();
+
+        assertEquals(expected, actual);
     }
 
 }

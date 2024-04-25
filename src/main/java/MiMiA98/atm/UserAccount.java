@@ -27,8 +27,5 @@ public class UserAccount {
     public Map<Integer, BankAccount> getBankAccounts() {
         return bankAccounts;
     }
-
-    public BankAccount getBankAccount(int accountCode) {
-        return bankAccounts.get(accountCode);
-    }
+    
 }

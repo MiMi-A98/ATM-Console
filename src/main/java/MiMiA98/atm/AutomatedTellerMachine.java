@@ -1,6 +1,8 @@
 package MiMiA98.atm;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -174,7 +176,6 @@ public class AutomatedTellerMachine {
 
         checkingAccount.deposit(depositAmount);
         display("Your total balance is: " + checkingAccount.getBalance());
-
     }
 
     private void changePin() {
@@ -210,16 +211,13 @@ public class AutomatedTellerMachine {
 
     }
 
-    // NOT SURE ABOUT THIS
-    // next 2 methods need database to work properly
-
-    private void transferMoney() {
+    public void transferMoney() {
         if (!isUserLoggedIn) {
             throw new IllegalStateException("User is not logged in!");
         }
 
         BankAccount transferFromAccount = chooseTransferFromAccount();
-        BankAccount transferToAccount = chooseTransferToAccount();
+        BankAccount transferToAccount = chooseTransferToAccount(transferFromAccount);
 
         Scanner scanner = new Scanner(System.in);
         display("Enter transfer amount!");
@@ -229,20 +227,33 @@ public class AutomatedTellerMachine {
 
     }
 
-    private BankAccount chooseTransferFromAccount() {
+    public BankAccount chooseTransferFromAccount() {
         if (!isUserLoggedIn) {
             throw new IllegalStateException("User is not logged in!");
         }
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Map<Integer, BankAccount> bankAccountsMap = userAccount.getBankAccounts();
+        Collection<BankAccount> bankAccounts = userAccount.getBankAccounts();
+
+        Map<Integer, BankAccount> bankAccountsMap = new HashMap<>();
+        int count = 1;
+        for (BankAccount bankAccount : bankAccounts) {
+            if ((bankAccount instanceof FixedTermAccount) && !((FixedTermAccount) bankAccount).isMatured()) {
+                continue;
+            }
+            bankAccountsMap.put(count, bankAccount);
+            count++;
+        }
+
         BankAccount transferFromAccount = null;
 
         Scanner scanner = new Scanner(System.in);
         display("Choose account from which you want to transfer!");
 
-        for (Map.Entry<Integer, BankAccount> bankAccount : bankAccountsMap.entrySet()) {
-            System.out.println(bankAccount);
+        for (Map.Entry<Integer, BankAccount> mapEntry : bankAccountsMap.entrySet()) {
+            int key = mapEntry.getKey();
+            BankAccount bankAccount = mapEntry.getValue();
+            display(String.format("%s - %s %nAccount number: %s %nBalance: %s", key, bankAccount.getClass().getSimpleName(), bankAccount.getAccountNumber(), bankAccount.getBalance()));
         }
 
         int accountCode = scanner.nextInt();
@@ -258,17 +269,26 @@ public class AutomatedTellerMachine {
         return transferFromAccount;
     }
 
-    private BankAccount chooseTransferToAccount() {
+    private BankAccount chooseTransferToAccount(BankAccount transferFromAccount) {
         if (!isUserLoggedIn) {
             throw new IllegalStateException("User is not logged in!");
         }
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Map<Integer, BankAccount> bankAccountsMap = userAccount.getBankAccounts();
+        Collection<BankAccount> bankAccounts = userAccount.getBankAccounts();
+
+        Map<Integer, BankAccount> bankAccountsMap = new HashMap<>();
+        int count = 1;
+        for (BankAccount bankAccount : bankAccounts) {
+            if (!(bankAccount instanceof FixedTermAccount) || !bankAccount.equals(transferFromAccount)) {
+                bankAccountsMap.put(count, bankAccount);
+                count++;
+            }
+        }
+
         BankAccount transferToAccount = null;
 
         Scanner scanner = new Scanner(System.in);
-
         display("Choose account to which you want to transfer!");
 
         for (Map.Entry<Integer, BankAccount> bankAccount : bankAccountsMap.entrySet()) {
@@ -282,7 +302,7 @@ public class AutomatedTellerMachine {
 
         } else {
             display("Invalid option! Try again");
-            chooseTransferToAccount();
+            chooseTransferToAccount(transferFromAccount);
         }
 
         return transferToAccount;
@@ -295,9 +315,9 @@ public class AutomatedTellerMachine {
         }
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Map<Integer, BankAccount> bankAccountsMap = userAccount.getBankAccounts();
+        Collection<BankAccount> bankAccountsMap = userAccount.getBankAccounts();
 
-        for (BankAccount bankAccount : bankAccountsMap.values()) {
+        for (BankAccount bankAccount : bankAccountsMap) {
             System.out.println(bankAccount);
         }
 

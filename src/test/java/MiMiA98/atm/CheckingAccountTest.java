@@ -16,7 +16,7 @@ class CheckingAccountTest {
     @BeforeEach
     void setUp() {
         UserAccount userAccount = Mockito.mock(UserAccount.class);
-        checkingAccount = new CheckingAccount(1, "1", "USD", userAccount);
+        checkingAccount = new CheckingAccount("1", "USD", userAccount);
     }
 
     @Test
@@ -101,9 +101,9 @@ class CheckingAccountTest {
     void transfer_amountIsEqualToBalance_checkingAccountBalanceIsZero() {
         checkingAccount.deposit(BigDecimal.valueOf(100));
         BigDecimal transferAmount = BigDecimal.valueOf(100);
-        BankAccount bankAccount = Mockito.mock(BankAccount.class);
+        BankAccount destinationBankAccount = Mockito.mock(BankAccount.class);
 
-        checkingAccount.transfer(transferAmount, bankAccount);
+        checkingAccount.transfer(transferAmount, destinationBankAccount);
 
         BigDecimal expected = BigDecimal.valueOf(0.0);
         BigDecimal actual = checkingAccount.getBalance();

@@ -1,31 +1,31 @@
 package MiMiA98.atm;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class UserAccount {
 
     private final String accountNumber;
     private final String userName; //full name
 
-    private final Map<Integer, BankAccount> bankAccounts;
+    private final Collection<BankAccount> bankAccounts;
 
     public UserAccount(String accountNumber, String userName) {
         this.accountNumber = accountNumber;
         this.userName = userName;
-        bankAccounts = new HashMap<>();
+        bankAccounts = new ArrayList<>();
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void addBankAccount(int accountCode, BankAccount bankAccount) {
-        bankAccounts.put(accountCode, bankAccount);
+    public void addBankAccount(BankAccount bankAccount) {
+        bankAccounts.add(bankAccount);
     }
 
-    public Map<Integer, BankAccount> getBankAccounts() {
+    public Collection<BankAccount> getBankAccounts() {
         return bankAccounts;
     }
-    
+
 }

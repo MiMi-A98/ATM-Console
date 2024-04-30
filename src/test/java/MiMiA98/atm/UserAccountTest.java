@@ -17,7 +17,7 @@ class UserAccountTest {
     @Test
     void addBankAccount_withBankAccount_increasesUserBankAccountsCollectionSize() {
         BankAccount bankAccount = Mockito.mock(BankAccount.class);
-        userAccount.addBankAccount(1, bankAccount);
+        userAccount.addBankAccount(bankAccount);
         assertEquals(1, userAccount.getBankAccounts().size());
     }
 }

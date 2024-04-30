@@ -51,11 +51,13 @@ public class FixedTermAccount extends DepositAccount {
             throw new IllegalArgumentException("Can't transfer money into the same account!");
         }
 
-        if ((this.getBalance().compareTo(transferAmount)) >= 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
+        if ((this.getBalance().compareTo(transferAmount)) == 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
             this.setBalance(getBalance().subtract(transferAmount));
             destinationBankAccount.deposit(transferAmount);
+            closeAccount();
         } else {
-            throw new IllegalArgumentException("Provided withdraw amount is larger than balance!");
+            System.out.println("You need to transfer the whole amount of balance from this account!");
+            throw new IllegalArgumentException("Provided withdraw amount is lower than zero or lower than balance!");
         }
     }
 

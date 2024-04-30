@@ -6,8 +6,8 @@ public abstract class DepositAccount extends BankAccount {
 
     private final double interestRate;
 
-    protected DepositAccount(int accountCode, String accountNumber, String currency, double balance, double interestRate, UserAccount userAccount) {
-        super(accountCode, accountNumber, currency, balance, userAccount);
+    protected DepositAccount(String accountNumber, String currency, double balance, double interestRate, UserAccount userAccount) {
+        super(accountNumber, currency, balance, userAccount);
         this.interestRate = interestRate;
     }
 

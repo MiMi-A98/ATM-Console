@@ -9,19 +9,31 @@ public class FixedTermAccount extends DepositAccount {
     private final LocalDate dateOfCreation;
     private final LocalDate dateOfMaturity;
 
-    public FixedTermAccount(int accountCode, String accountNumber, String currency, double balance, int timeOfMaturity, UserAccount userAccount) {
-        super(accountCode, accountNumber, currency, balance, INTEREST_RATE, userAccount);
+    public FixedTermAccount(String accountNumber, String currency, double balance, int timeOfMaturity, UserAccount userAccount) {
+        super(accountNumber, currency, balance, INTEREST_RATE, userAccount);
         this.dateOfCreation = LocalDate.now();
         this.dateOfMaturity = dateOfCreation.plusYears(timeOfMaturity);
     }
 
-    public LocalDate getDateOfMaturity() {
-        return dateOfMaturity;
+    public FixedTermAccount(String accountNumber, String currency, int timeOfMaturity, UserAccount userAccount) {
+        this(accountNumber, currency, 0.0, timeOfMaturity, userAccount);
+    }
+
+    public boolean isMatured() {
+        return LocalDate.now().isAfter(dateOfMaturity) || LocalDate.now().isEqual(dateOfMaturity);
     }
 
     @Override
-    void setBalance(BigDecimal balance) {
-        System.out.println("This account doesn't accept transfers!");
+    public void deposit(BigDecimal depositAmount) {
+        if (getBalance() != null || getBalance().compareTo(BigDecimal.valueOf(0)) > 0) {
+            throw new IllegalStateException("Can't deposit money in an initialized fix term account");
+        }
+        super.deposit(depositAmount);
+    }
+
+    @Override
+    public void withdraw(BigDecimal withdrawAmount) {
+        throw new IllegalStateException("Can't withdraw from fix term account");
     }
 
     @Override
@@ -29,8 +41,26 @@ public class FixedTermAccount extends DepositAccount {
         if (LocalDate.now().isBefore(dateOfMaturity)) {
             throw new IllegalStateException("Didn't reach day of maturity!");
         }
+        if (isClosed()) {
+            throw new IllegalStateException("Account is closed!");
+        }
+        if (isFrozen()) {
+            throw new IllegalStateException("Account is frozen!");
+        }
+        if (this.equals(destinationBankAccount)) {
+            throw new IllegalArgumentException("Can't transfer money into the same account!");
+        }
 
-        super.transfer(transferAmount, destinationBankAccount);
+        if ((this.getBalance().compareTo(transferAmount)) >= 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
+            this.setBalance(getBalance().subtract(transferAmount));
+            destinationBankAccount.deposit(transferAmount);
+        } else {
+            throw new IllegalArgumentException("Provided withdraw amount is larger than balance!");
+        }
+    }
+
+    public LocalDate getDateOfMaturity() {
+        return dateOfMaturity;
     }
 
     @Override

@@ -11,6 +11,13 @@ public class SavingsAccount extends DepositAccount {
     }
 
     @Override
+    public String toStringBasic() {
+        return "Savings account" + "\n" +
+                "Currency: " + getCurrency() + "\n" +
+                "Balance: " + getBalance() + "\n";
+    }
+
+    @Override
     public String toString() {
         return "Savings account" + "\n" +
                 "User name: " + getUserName() + "\n" +

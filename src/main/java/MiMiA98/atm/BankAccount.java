@@ -107,4 +107,12 @@ public abstract class BankAccount {
         }
     }
 
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    public String toStringBasic() {
+        return "";
+    }
 }

@@ -25,6 +25,13 @@ public class CheckingAccount extends BankAccount {
     }
 
     @Override
+    public String toStringBasic() {
+        return "Checking account" + "\n" +
+                "Currency: " + getCurrency() + "\n" +
+                "Balance: " + getBalance() + "\n";
+    }
+
+    @Override
     public String toString() {
         return "Checking account" + "\n" +
                 "User name: " + getUserName() + "\n" +

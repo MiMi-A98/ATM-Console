@@ -56,13 +56,20 @@ public class FixedTermAccount extends DepositAccount {
             destinationBankAccount.deposit(transferAmount);
             closeAccount();
         } else {
-            System.out.println("You need to transfer the whole amount of balance from this account!");
             throw new IllegalArgumentException("Provided withdraw amount is lower than zero or lower than balance!");
         }
     }
 
     public LocalDate getDateOfMaturity() {
         return dateOfMaturity;
+    }
+
+    @Override
+    public String toStringBasic() {
+        return "Fixed term account" + "\n" +
+                "Currency: " + getCurrency() + "\n" +
+                "Balance: " + getBalance() + "\n" +
+                "Date of maturity: " + getDateOfMaturity() + "\n";
     }
 
     @Override

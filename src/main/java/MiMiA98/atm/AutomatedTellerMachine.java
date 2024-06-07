@@ -3,6 +3,7 @@ package MiMiA98.atm;
 import MiMiA98.atm.app.ListScreen;
 import MiMiA98.atm.app.MenuScreen;
 import MiMiA98.atm.app.Screen;
+import MiMiA98.atm.entity.*;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -84,6 +85,7 @@ public class AutomatedTellerMachine {
                 new MenuScreen.Option("View balance", () -> viewBalance()),
                 new MenuScreen.Option("Withdraw funds", () -> withdraw()),
                 new MenuScreen.Option("Deposit", () -> deposit()),
+                new MenuScreen.Option("Back", () -> displayMainMenu()),
                 new MenuScreen.Option("Quit", () -> logout()));
 
         try {
@@ -98,6 +100,8 @@ public class AutomatedTellerMachine {
             throw new IllegalStateException("User is not logged in!");
         }
         Screen.display("Your balance is: " + card.getCheckingAccount().getBalance());
+
+        newOperation();
     }
 
     private void withdraw() {
@@ -131,6 +135,8 @@ public class AutomatedTellerMachine {
                 withdraw();
             }
         }
+
+        newOperation();
     }
 
     private void deposit() {
@@ -144,6 +150,8 @@ public class AutomatedTellerMachine {
 
         checkingAccount.deposit(depositAmount);
         Screen.display("Your total balance is: " + checkingAccount.getBalance());
+
+        newOperation();
     }
 
     private void changePin() {
@@ -170,6 +178,10 @@ public class AutomatedTellerMachine {
                 changePin();
             }
         }
+
+        if (card.isActivated()) {
+            newOperation();
+        }
     }
 
     private void transferMoney() {
@@ -184,6 +196,8 @@ public class AutomatedTellerMachine {
         BigDecimal transferAmount = BigDecimal.valueOf(Screen.getInputDouble());
 
         transferFromAccount.transfer(transferAmount, transferToAccount);
+
+        newOperation();
     }
 
     private BankAccount chooseTransferFromAccount() {
@@ -255,5 +269,24 @@ public class AutomatedTellerMachine {
             Screen.display(bankAccount.toStringBasic());
         }
 
+        newOperation();
+    }
+
+    private void newOperation() {
+        if (!isUserLoggedIn) {
+            throw new IllegalStateException("User is not logged in!");
+        }
+
+        Screen.display("Do you want to make another operation?");
+
+        MenuScreen menu = new MenuScreen(
+                new MenuScreen.Option("Yes", () -> displayMainMenu()),
+                new MenuScreen.Option("No", () -> logout()));
+
+        try {
+            menu.navigate();
+        } catch (IllegalArgumentException e) {
+            newOperation();
+        }
     }
 }

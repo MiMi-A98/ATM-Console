@@ -3,22 +3,22 @@ package MiMiA98.atm.app;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ListScreen extends Screen {
+public class ListScreen<T> extends Screen {
 
-    private final Map<Integer, Item> optionMap = new HashMap<>();
+    private final Map<Integer, Item<T>> optionMap = new HashMap<>();
     private int count = 1;
 
-    public void addItem(Item item) {
+    public void addItem(Item<T> item) {
         optionMap.put(count, item);
         count++;
     }
 
-    public Object chooseItem() {
+    public T chooseItem() {
         viewOptions();
         int option = getInputInt();
 
         if (hasOption(option)) {
-            return getItem(option);
+            return getItem(option).item();
         } else {
             display("Invalid option! Try again!");
             throw new IllegalArgumentException("Invalid option!");
@@ -27,7 +27,7 @@ public class ListScreen extends Screen {
 
     public void viewOptions() {
         for (Map.Entry option : optionMap.entrySet()) {
-            Item optionText = (Item) option.getValue();
+            Item<T> optionText = (Item) option.getValue();
             display(option.getKey() + " - " + optionText.itemInfo);
         }
     }
@@ -36,13 +36,13 @@ public class ListScreen extends Screen {
         return optionMap.containsKey(optionNumber);
     }
 
-    public Object getItem(int optionNumber) {
+    public Item<T> getItem(int optionNumber) {
         if (!hasOption(optionNumber)) {
             throw new IllegalArgumentException("Invalid option!");
         }
         return optionMap.get(optionNumber);
     }
 
-    public record Item(String itemInfo, Object item) {
+    public record Item<T>(String itemInfo, T item) {
     }
 }

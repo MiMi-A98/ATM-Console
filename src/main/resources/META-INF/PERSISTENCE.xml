@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence">
+
+    <persistence-unit name="atm_database" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>MiMiA98/atm/UserAccount.java</class>
+        <class>MiMiA98/atm/CheckingAccount.java</class>
+        <class>MiMiA98/atm/SavingsAccount.java</class>
+        <class>MiMiA98/atm/FixedTermAccount.java</class>
+        <class>MiMiA98/atm/Card.java</class>
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1:3306/atm_database"/>
+            <property name="jakarta.persistence.jdbc.user" value="Mimi"/>
+            <property name="jakarta.persistence.jdbc.password" value="mimi1234"/>
+
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
+

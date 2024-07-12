@@ -26,7 +26,17 @@ public class CardService {
         if (cardNumber == null || cardNumber.isEmpty() || newPIN == null || newPIN.isEmpty()) {
             throw new IllegalArgumentException("Card number/New PIN cannot be null or empty");
         }
-        cardDAO.updateCardPin(cardNumber, newPIN);
+
+        Card card = cardDAO.readCard(cardNumber);
+        if (card.isBlocked()) {
+            throw new IllegalStateException("Card is blocked!");
+        } else {
+            if (newPIN.matches("\\d{4}")) {
+                cardDAO.updateCardPin(cardNumber, newPIN);
+            } else {
+                throw new IllegalArgumentException("New pin doesn't fulfill the requirements!");
+            }
+        }
     }
 
     public void updateCardBlockedState(String cardNumber, boolean isBlocked) {

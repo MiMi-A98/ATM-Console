@@ -36,15 +36,7 @@ public class Card {
     }
 
     public void setPin(String newPin) {
-        if (isBlocked) {
-            throw new IllegalStateException("Card is blocked!");
-        } else {
-            if (newPin.matches("\\d{4}")) {
-                this.pin = newPin;
-            } else {
-                throw new IllegalArgumentException("New pin doesn't fulfill the requirements!");
-            }
-        }
+        this.pin = newPin;
     }
 
     public boolean isBlocked() {

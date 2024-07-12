@@ -18,18 +18,21 @@ public class FixedTermAccount extends DepositAccount {
 
     public FixedTermAccount(String accountNumber, String currency, int timeOfMaturity, UserAccount userAccount) {
         this(accountNumber, currency, BigDecimal.valueOf(0.0), timeOfMaturity, userAccount);
-        this.dateOfMaturity = getDateOfCreation().plusYears(timeOfMaturity);
-
     }
 
     public FixedTermAccount(String accountNumber, String currency, BigDecimal balance, int timeOfMaturity, UserAccount userAccount) {
-        super(accountNumber, currency, balance, INTEREST_RATE, timeOfMaturity, userAccount);
+        super(accountNumber, currency, balance, INTEREST_RATE, userAccount);
+        this.dateOfMaturity = getDateOfCreation().plusYears(timeOfMaturity);
     }
 
     public LocalDate getDateOfMaturity() {
         return dateOfMaturity;
     }
-    
+
+    public void setTimeOfMaturity(int timeOfMaturity) {
+        this.dateOfMaturity = getDateOfCreation().plusYears(timeOfMaturity);
+    }
+
     public boolean isMatured() {
         return LocalDate.now().isAfter(getDateOfMaturity()) || LocalDate.now().isEqual(getDateOfMaturity());
     }

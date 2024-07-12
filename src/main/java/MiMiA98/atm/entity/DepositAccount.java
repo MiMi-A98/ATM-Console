@@ -13,16 +13,14 @@ public abstract class DepositAccount extends BankAccount {
 
     private double interestRate;
     private LocalDate dateOfCreation;
-    private int timePeriod;
 
     protected DepositAccount() {
     }
 
-    protected DepositAccount(String accountNumber, String currency, BigDecimal balance, double interestRate, int timePeriod, UserAccount userAccount) {
+    protected DepositAccount(String accountNumber, String currency, BigDecimal balance, double interestRate, UserAccount userAccount) {
         super(accountNumber, currency, balance, userAccount);
         this.interestRate = interestRate;
         this.dateOfCreation = LocalDate.now();
-        this.timePeriod = timePeriod;
     }
 
     public double getInterestRate() {
@@ -37,11 +35,4 @@ public abstract class DepositAccount extends BankAccount {
         return dateOfCreation;
     }
 
-    public int getTimePeriod() {
-        return timePeriod;
-    }
-
-    public void setTimePeriod(int timePeriod) {
-        this.timePeriod = timePeriod;
-    }
 }

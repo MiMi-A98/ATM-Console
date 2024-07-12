@@ -1,13 +1,22 @@
-package MiMiA98.atm;
+package MiMiA98.atm.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 
+@Entity
+@Table(name = "savings_account")
 public class SavingsAccount extends DepositAccount {
 
-    private static final double INTEREST_RATE = 0.02;
+    private static double INTEREST_RATE = 0.02;
 
-    public SavingsAccount(String accountNumber, String currency, UserAccount userAccount) {
-        super(accountNumber, currency, 0.0, INTEREST_RATE, userAccount);
+    public SavingsAccount() {
+
+    }
+
+    public SavingsAccount(String accountNumber, String currency, int timePeriod, UserAccount userAccount) {
+        super(accountNumber, currency, BigDecimal.valueOf(0.0), INTEREST_RATE, timePeriod, userAccount);
     }
 
     @Override
@@ -27,11 +36,4 @@ public class SavingsAccount extends DepositAccount {
                 "Interest rate: " + INTEREST_RATE + "\n";
     }
 
-    @Override
-    public void transfer(BigDecimal transferAmount, BankAccount destinationBankAccount) {
-        if (!destinationBankAccount.getUserAccount().equals(getUserAccount())) {
-            throw new IllegalArgumentException("Destination account is not associated to same user account!");
-        }
-        super.transfer(transferAmount, destinationBankAccount);
-    }
 }

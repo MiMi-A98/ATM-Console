@@ -1,13 +1,23 @@
-package MiMiA98.atm;
+package MiMiA98.atm.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "Card")
 public class Card {
 
-    private final String cardNumber;
-    private final CheckingAccount checkingAccount;
+
+    @Id
+    private String cardNumber;
+    @ManyToOne
+    @JoinColumn(name = "checkingAccount_id")
+    private CheckingAccount checkingAccount;
     private String pin;
     private boolean isBlocked;
     private boolean isActivated;
 
+    public Card() {
+    }
 
     public Card(String cardNumber, String pin, CheckingAccount checkingAccount) {
         this.cardNumber = cardNumber;
@@ -15,7 +25,6 @@ public class Card {
         this.isBlocked = false;
         this.isActivated = false;
         this.checkingAccount = checkingAccount;
-        this.checkingAccount.addCard(this);
     }
 
     public String getCardNumber() {

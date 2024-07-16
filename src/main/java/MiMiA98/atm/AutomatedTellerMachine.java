@@ -3,21 +3,24 @@ package MiMiA98.atm;
 import MiMiA98.atm.app.ListScreen;
 import MiMiA98.atm.app.MenuScreen;
 import MiMiA98.atm.app.Screen;
+import MiMiA98.atm.dao.UtilDAO;
 import MiMiA98.atm.entity.*;
+import MiMiA98.atm.service.BankAccountService;
+import MiMiA98.atm.service.CardService;
+import MiMiA98.atm.service.CheckingAccountService;
+import MiMiA98.atm.service.UserAccountService;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 
 public class AutomatedTellerMachine {
-
+    private final UserAccountService userAccountService = new UserAccountService();
+    private final CheckingAccountService checkingAccountService = new CheckingAccountService();
+    private final BankAccountService bankAccountService = new BankAccountService();
+    private final CardService cardService = new CardService();
+    private final UtilDAO utilDAO = new UtilDAO();
     private boolean isUserLoggedIn = false;
     private Card card;
-
-    private void logout() {
-        Screen.display("Good bye!");
-        isUserLoggedIn = false;
-        card = null;
-    }
 
     public void login(Card card) {
         if (card.isBlocked()) {
@@ -39,7 +42,7 @@ public class AutomatedTellerMachine {
 
                 if (!card.isActivated()) {
                     Screen.display("Please change your PIN to activate the card!");
-                    changePin();
+                    cardService.updateCardPin(card.getCardNumber(), pin);
                     card.setActivated(true);
                     login(card);
                 }
@@ -49,7 +52,7 @@ public class AutomatedTellerMachine {
                         PIN tries exceeded!
                         Your card has been blocked!
                         """);
-                card.setBlocked(true);
+                cardService.updateCardBlockedState(card.getCardNumber(), true);
                 logout();
             } else {
                 Screen.display("Incorrect PIN! Try again!");
@@ -58,9 +61,7 @@ public class AutomatedTellerMachine {
     }
 
     public void displayMainMenu() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         MenuScreen menu = new MenuScreen(
                 new MenuScreen.Option("Checking account", () -> displayCheckingAccount()),
@@ -77,9 +78,7 @@ public class AutomatedTellerMachine {
     }
 
     private void displayCheckingAccount() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         MenuScreen menu = new MenuScreen(
                 new MenuScreen.Option("View balance", () -> viewBalance()),
@@ -96,20 +95,16 @@ public class AutomatedTellerMachine {
     }
 
     private void viewBalance() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
         Screen.display("Your balance is: " + card.getCheckingAccount().getBalance());
 
-        newOperation();
+        navigateToMainMenuOrLogout();
     }
 
     private void withdraw() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
-        viewBalance();
+        Screen.display("Your balance is: " + card.getCheckingAccount().getBalance());
 
         Screen.display("Enter withdraw amount!");
         BigDecimal withdrawAmount = BigDecimal.valueOf(Screen.getInputDouble());
@@ -117,77 +112,51 @@ public class AutomatedTellerMachine {
         CheckingAccount checkingAccount = card.getCheckingAccount();
 
         try {
-            checkingAccount.withdraw(withdrawAmount);
+            checkingAccountService.withdraw(checkingAccount, withdrawAmount);
             Screen.display("Operation processed successfully!");
             Screen.display("Your new balance is: " + checkingAccount.getBalance());
 
-        } catch (IllegalArgumentException ex) {
-            Screen.display("Withdraw amount is too high! Your total balance is: " + checkingAccount.getBalance());
-            Screen.display("Do you want to retry?");
-
-            MenuScreen menu = new MenuScreen(
-                    new MenuScreen.Option("Yes", () -> withdraw()),
-                    new MenuScreen.Option("No", () -> logout()));
-
-            try {
-                menu.navigate();
-            } catch (IllegalArgumentException e) {
-                withdraw();
-            }
+        } catch (Exception ex) {
+            Screen.display("Error during withdrawal: " + ex.getMessage());
+            retryMenuOptionOrLogout(() -> withdraw());
         }
 
-        newOperation();
+        navigateToMainMenuOrLogout();
     }
 
     private void deposit() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         Screen.display("Enter deposit amount!");
         BigDecimal depositAmount = BigDecimal.valueOf(Screen.getInputDouble());
         CheckingAccount checkingAccount = card.getCheckingAccount();
 
-        checkingAccount.deposit(depositAmount);
+        checkingAccountService.deposit(checkingAccount, depositAmount);
         Screen.display("Your total balance is: " + checkingAccount.getBalance());
 
-        newOperation();
+        navigateToMainMenuOrLogout();
     }
 
     private void changePin() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         Screen.display("Enter new pin.");
         String newPin = Screen.getInputString();
 
         try {
-            card.setPin(newPin);
+            cardService.updateCardPin(card.getCardNumber(), newPin);
         } catch (IllegalArgumentException ex) {
             Screen.display("Pin should contain only digits and have a length of four characters!");
-            Screen.display("Do you want to retry?");
-
-            MenuScreen menu = new MenuScreen(
-                    new MenuScreen.Option("Yes", () -> changePin()),
-                    new MenuScreen.Option("No", () -> logout()));
-
-            try {
-                menu.navigate();
-            } catch (IllegalArgumentException e) {
-                changePin();
-            }
+            retryMenuOptionOrLogout(() -> changePin());
         }
 
         if (card.isActivated()) {
-            newOperation();
+            navigateToMainMenuOrLogout();
         }
     }
 
     private void transferMoney() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         BankAccount transferFromAccount = chooseTransferFromAccount();
         BankAccount transferToAccount = chooseTransferToAccount(transferFromAccount);
@@ -195,32 +164,31 @@ public class AutomatedTellerMachine {
         Screen.display("Enter transfer amount!");
         BigDecimal transferAmount = BigDecimal.valueOf(Screen.getInputDouble());
 
-        transferFromAccount.transfer(transferAmount, transferToAccount);
+        bankAccountService.transfer(transferFromAccount, transferToAccount, transferAmount);
 
-        newOperation();
+        navigateToMainMenuOrLogout();
     }
 
     private BankAccount chooseTransferFromAccount() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Collection<BankAccount> bankAccounts = userAccount.getBankAccounts();
+        String userId = userAccount.getAccountNumber();
+        Collection<BankAccount> bankAccounts = userAccountService.getAllAssociatedAccounts(userId);
 
         BankAccount transferFromAccount = null;
 
-        ListScreen listScreen = new ListScreen();
+        ListScreen<BankAccount> listScreen = new ListScreen<>();
         for (BankAccount bankAccount : bankAccounts) {
             if ((bankAccount instanceof FixedTermAccount) && !((FixedTermAccount) bankAccount).isMatured()) {
                 continue;
             }
-            listScreen.addItem(new ListScreen.Item(bankAccount.toStringBasic(), bankAccount));
+            listScreen.addItem(new ListScreen.Item<>(bankAccount.toStringBasic(), bankAccount));
         }
 
         Screen.display("Choose account from which you want to transfer!");
         try {
-            transferFromAccount = (BankAccount) listScreen.chooseItem();
+            transferFromAccount = listScreen.chooseItem();
         } catch (IllegalArgumentException e) {
             chooseTransferFromAccount();
         }
@@ -229,26 +197,26 @@ public class AutomatedTellerMachine {
     }
 
     private BankAccount chooseTransferToAccount(BankAccount transferFromAccount) {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Collection<BankAccount> bankAccounts = userAccount.getBankAccounts();
+        String userId = userAccount.getAccountNumber();
+        Collection<BankAccount> bankAccounts = userAccountService.getAllAssociatedAccounts(userId);
 
         BankAccount transferToAccount = null;
 
-        ListScreen listScreen = new ListScreen();
+        ListScreen<BankAccount> listScreen = new ListScreen<>();
         for (BankAccount bankAccount : bankAccounts) {
-            if (!(bankAccount instanceof FixedTermAccount) || !bankAccount.equals(transferFromAccount)) {
+            bankAccount.toStringBasic();
+            if ((bankAccount instanceof FixedTermAccount) || bankAccount.equals(transferFromAccount)) {
                 continue;
             }
-            listScreen.addItem(new ListScreen.Item(bankAccount.toStringBasic(), bankAccount));
+            listScreen.addItem(new ListScreen.Item<>(bankAccount.toStringBasic(), bankAccount));
         }
 
         Screen.display("Choose account to which you want to transfer!");
         try {
-            transferToAccount = (BankAccount) listScreen.chooseItem();
+            transferToAccount = listScreen.chooseItem();
         } catch (IllegalArgumentException e) {
             chooseTransferToAccount(transferFromAccount);
         }
@@ -258,24 +226,20 @@ public class AutomatedTellerMachine {
 
 
     private void viewAccountsInfo() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+        validateLogin();
 
         UserAccount userAccount = card.getCheckingAccount().getUserAccount();
-        Collection<BankAccount> bankAccountsMap = userAccount.getBankAccounts();
+        Collection<BankAccount> bankAccounts = userAccountService.getAllAssociatedAccounts(userAccount.getAccountNumber());
 
-        for (BankAccount bankAccount : bankAccountsMap) {
+        for (BankAccount bankAccount : bankAccounts) {
             Screen.display(bankAccount.toStringBasic());
         }
 
-        newOperation();
+        navigateToMainMenuOrLogout();
     }
 
-    private void newOperation() {
-        if (!isUserLoggedIn) {
-            throw new IllegalStateException("User is not logged in!");
-        }
+    private void navigateToMainMenuOrLogout() {
+        validateLogin();
 
         Screen.display("Do you want to make another operation?");
 
@@ -286,7 +250,34 @@ public class AutomatedTellerMachine {
         try {
             menu.navigate();
         } catch (IllegalArgumentException e) {
-            newOperation();
+            navigateToMainMenuOrLogout();
         }
+    }
+
+    private void retryMenuOptionOrLogout(Runnable action) {
+        Screen.display("Do you want to retry?");
+
+        MenuScreen menu = new MenuScreen(
+                new MenuScreen.Option("Yes", () -> action.run()),
+                new MenuScreen.Option("No", () -> logout()));
+
+        try {
+            menu.navigate();
+        } catch (IllegalArgumentException e) {
+            action.run();
+        }
+    }
+
+    private void validateLogin() {
+        if (!isUserLoggedIn) {
+            throw new IllegalStateException("User is not logged in!");
+        }
+    }
+
+    private void logout() {
+        Screen.display("Good bye!");
+        isUserLoggedIn = false;
+        card = null;
+        utilDAO.closeEntityManager();
     }
 }

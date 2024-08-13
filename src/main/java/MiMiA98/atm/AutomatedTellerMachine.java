@@ -3,21 +3,22 @@ package MiMiA98.atm;
 import MiMiA98.atm.app.ListScreen;
 import MiMiA98.atm.app.MenuScreen;
 import MiMiA98.atm.app.Screen;
+import MiMiA98.atm.dao.CardDAO;
+import MiMiA98.atm.dao.UserAccountDAO;
 import MiMiA98.atm.dao.UtilDAO;
 import MiMiA98.atm.entity.*;
 import MiMiA98.atm.service.BankAccountService;
 import MiMiA98.atm.service.CardService;
-import MiMiA98.atm.service.CheckingAccountService;
 import MiMiA98.atm.service.UserAccountService;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
+
 public class AutomatedTellerMachine {
-    private final UserAccountService userAccountService = new UserAccountService();
-    private final CheckingAccountService checkingAccountService = new CheckingAccountService();
-    private final BankAccountService bankAccountService = new BankAccountService();
-    private final CardService cardService = new CardService();
+    private final UserAccountService userAccountService = new UserAccountService(new UserAccountDAO());
+    private final CardService cardService = new CardService(new CardDAO());
     private final UtilDAO utilDAO = new UtilDAO();
     private boolean isUserLoggedIn = false;
     private Card card;
@@ -96,23 +97,25 @@ public class AutomatedTellerMachine {
 
     private void viewBalance() {
         validateLogin();
-        Screen.display("Your balance is: " + card.getCheckingAccount().getBalance());
+        CheckingAccount checkingAccount = card.getCheckingAccount();
+        Screen.display("Your balance is: " + checkingAccount.getBalance());
 
         navigateToMainMenuOrLogout();
     }
 
     private void withdraw() {
         validateLogin();
+        CheckingAccount checkingAccount = card.getCheckingAccount();
 
-        Screen.display("Your balance is: " + card.getCheckingAccount().getBalance());
+        Screen.display("Your balance is: " + checkingAccount.getBalance());
 
         Screen.display("Enter withdraw amount!");
         BigDecimal withdrawAmount = BigDecimal.valueOf(Screen.getInputDouble());
 
-        CheckingAccount checkingAccount = card.getCheckingAccount();
 
         try {
-            checkingAccountService.withdraw(checkingAccount, withdrawAmount);
+            BankAccountService bankAccountService = getService(checkingAccount);
+            bankAccountService.withdraw(checkingAccount, withdrawAmount);
             Screen.display("Operation processed successfully!");
             Screen.display("Your new balance is: " + checkingAccount.getBalance());
 
@@ -131,7 +134,8 @@ public class AutomatedTellerMachine {
         BigDecimal depositAmount = BigDecimal.valueOf(Screen.getInputDouble());
         CheckingAccount checkingAccount = card.getCheckingAccount();
 
-        checkingAccountService.deposit(checkingAccount, depositAmount);
+        BankAccountService bankAccountService = getService(checkingAccount);
+        bankAccountService.deposit(checkingAccount, depositAmount);
         Screen.display("Your total balance is: " + checkingAccount.getBalance());
 
         navigateToMainMenuOrLogout();
@@ -164,6 +168,7 @@ public class AutomatedTellerMachine {
         Screen.display("Enter transfer amount!");
         BigDecimal transferAmount = BigDecimal.valueOf(Screen.getInputDouble());
 
+        BankAccountService bankAccountService = getService(transferFromAccount);
         bankAccountService.transfer(transferFromAccount, transferToAccount, transferAmount);
 
         navigateToMainMenuOrLogout();
@@ -208,7 +213,7 @@ public class AutomatedTellerMachine {
         ListScreen<BankAccount> listScreen = new ListScreen<>();
         for (BankAccount bankAccount : bankAccounts) {
             bankAccount.toStringBasic();
-            if ((bankAccount instanceof FixedTermAccount) || bankAccount.equals(transferFromAccount)) {
+            if ((bankAccount instanceof FixedTermAccount) || (bankAccount.getAccountNumber()).equals(transferFromAccount.getAccountNumber())) {
                 continue;
             }
             listScreen.addItem(new ListScreen.Item<>(bankAccount.toStringBasic(), bankAccount));
@@ -228,7 +233,8 @@ public class AutomatedTellerMachine {
     private void viewAccountsInfo() {
         validateLogin();
 
-        UserAccount userAccount = card.getCheckingAccount().getUserAccount();
+        CheckingAccount checkingAccount = card.getCheckingAccount();
+        UserAccount userAccount = checkingAccount.getUserAccount();
         Collection<BankAccount> bankAccounts = userAccountService.getAllAssociatedAccounts(userAccount.getAccountNumber());
 
         for (BankAccount bankAccount : bankAccounts) {
@@ -278,6 +284,6 @@ public class AutomatedTellerMachine {
         Screen.display("Good bye!");
         isUserLoggedIn = false;
         card = null;
-        utilDAO.closeEntityManager();
+        utilDAO.closeEntityManagerFactory();
     }
 }

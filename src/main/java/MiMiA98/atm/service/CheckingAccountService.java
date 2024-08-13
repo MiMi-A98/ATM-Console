@@ -6,8 +6,6 @@ import MiMiA98.atm.entity.CheckingAccount;
 
 import java.math.BigDecimal;
 
-import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
-
 public class CheckingAccountService extends BankAccountService {
     private final CheckingAccountDAO checkingAccountDAO;
 
@@ -36,7 +34,7 @@ public class CheckingAccountService extends BankAccountService {
 
         BigDecimal sourceNewBalance = (getBankAccount(sourceAccount.getAccountNumber()).getBalance()).subtract(transferAmount);
 
-        BankAccountService bankAccountService = getService(destinationAccount);
+        BankAccountService bankAccountService = BankAccountServiceLocator.getService(destinationAccount);
         BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
         BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmount);
 

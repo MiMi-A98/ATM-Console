@@ -41,7 +41,7 @@ class CheckingAccountServiceTest {
     }
 
     @Test
-    void doWithdraw_validCheckingAccount_doesNotThrowError() {
+    void doWithdraw_validInputs_doesNotThrowError() {
         CheckingAccount checkingAccount = new CheckingAccount("c1", "USD", new UserAccount());
         BigDecimal withdrawAmount = BigDecimal.valueOf(100);
 

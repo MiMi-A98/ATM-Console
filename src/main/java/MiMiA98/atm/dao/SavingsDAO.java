@@ -9,11 +9,11 @@ import jakarta.persistence.PersistenceException;
 import java.math.BigDecimal;
 
 public class SavingsDAO {
+    private final UtilDAO utilDAO = new UtilDAO();
     UserAccountDAO userAccountDAO = new UserAccountDAO();
-    private UtilDAO utilDAO = new UtilDAO();
 
     public void createSavingsAccount(String accountNumber, String currency, int timePeriod, String userId) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             UserAccount userAccount = userAccountDAO.readUserAccount(userId);
@@ -24,12 +24,13 @@ public class SavingsDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public SavingsAccount readSavingsAccount(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
-        try {
+        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
             return entityManager.find(SavingsAccount.class, accountNumber);
         } catch (RuntimeException e) {
             throw new RuntimeException();
@@ -37,7 +38,7 @@ public class SavingsDAO {
     }
 
     public void updateSavingsAccountBalance(String accountNumber, BigDecimal newBalance) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -48,11 +49,13 @@ public class SavingsDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateSavingsAccountInterestRate(String accountNumber, double newInterestRate) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -63,11 +66,13 @@ public class SavingsDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateSavingsAccountTimePeriod(String accountNumber, int newPeriod) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -78,11 +83,47 @@ public class SavingsDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    public void updateSavingsAccountFrozenState(String accountNumber, boolean frozenState) {
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        try {
+            entityTransaction.begin();
+            SavingsAccount savingsAccount = readSavingsAccount(accountNumber);
+            savingsAccount.setFrozen(frozenState);
+            entityManager.merge(savingsAccount);
+            entityTransaction.commit();
+        } catch (PersistenceException e) {
+            entityTransaction.rollback();
+            System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    public void updateSavingsAccountClosedState(String accountNumber) {
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        try {
+            entityTransaction.begin();
+            SavingsAccount savingsAccount = readSavingsAccount(accountNumber);
+            savingsAccount.closeAccount();
+            entityManager.merge(savingsAccount);
+            entityTransaction.commit();
+        } catch (PersistenceException e) {
+            entityTransaction.rollback();
+            System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void deleteSavingsAccount(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -92,6 +133,8 @@ public class SavingsDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 }

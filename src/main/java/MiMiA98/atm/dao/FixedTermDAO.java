@@ -13,7 +13,7 @@ public class FixedTermDAO {
     private UtilDAO utilDAO = new UtilDAO();
 
     public void createFixedTermAccount(String accountNumber, String currency, BigDecimal balance, int timeOfMaturity, String userId) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             UserAccount userAccount = userAccountDAO.readUserAccount(userId);
@@ -24,12 +24,13 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public FixedTermAccount readFixedTermAccount(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
-        try {
+        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();) {
             return entityManager.find(FixedTermAccount.class, accountNumber);
         } catch (RuntimeException e) {
             throw new RuntimeException();
@@ -37,7 +38,7 @@ public class FixedTermDAO {
     }
 
     public void updateFixedTermAccountBalance(String accountNumber, BigDecimal newBalance) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -48,11 +49,13 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateFixedTermAccountInterestRate(String accountNumber, double newInterestRate) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -64,10 +67,11 @@ public class FixedTermDAO {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
         }
+        entityManager.close();
     }
 
     public void updateFixedTermAccountFrozenState(String accountNumber, boolean frozenState) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -78,11 +82,13 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateFixedTermAccountClosedState(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -93,11 +99,13 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateFixedTermAccountTimePeriod(String accountNumber, int newPeriod) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -108,11 +116,13 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void deleteFixedTermAccount(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -122,6 +132,8 @@ public class FixedTermDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 }

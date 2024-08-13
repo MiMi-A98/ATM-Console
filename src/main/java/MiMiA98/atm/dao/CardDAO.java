@@ -11,7 +11,7 @@ public class CardDAO {
     private UtilDAO utilDAO = new UtilDAO();
 
     public void createCard(String cardNumber, String pin, String checkingAccountId) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             CheckingAccount checkingAccount = checkingAccountDAO.readCheckingAccount(checkingAccountId);
@@ -22,12 +22,13 @@ public class CardDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public Card readCard(String cardNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
-        try {
+        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
             return entityManager.find(Card.class, cardNumber);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
@@ -36,7 +37,7 @@ public class CardDAO {
 
 
     public void updateCardPin(String cardNumber, String newPIN) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -47,11 +48,13 @@ public class CardDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void updateBlockedState(String cardNumber, boolean isBlocked) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -62,11 +65,13 @@ public class CardDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 
     public void deleteCard(String cardNumber) {
-        EntityManager entityManager = utilDAO.getEntityManager();
+        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
         try {
             entityTransaction.begin();
@@ -76,6 +81,8 @@ public class CardDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
+        } finally {
+            entityManager.close();
         }
     }
 }

@@ -52,6 +52,9 @@ public class CardService {
         if (cardNumber == null || cardNumber.isEmpty()) {
             throw new IllegalArgumentException("Card number cannot be null or empty");
         }
+        if (cardDAO.readCard(cardNumber).isBlocked()) {
+            throw new IllegalStateException("Card is already blocked");
+        }
         cardDAO.updateBlockedState(cardNumber, isBlocked);
     }
 

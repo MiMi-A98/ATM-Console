@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +31,34 @@ class FixedTermServiceTest {
     @BeforeEach
     public void setUp() {
         fixedTermService = new FixedTermService(fixedTermDAO);
+    }
+
+    @Test
+    void withdraw_fromFixedTermAccount_throwsException() {
+        BigDecimal withdrawAmount = BigDecimal.valueOf(100);
+        assertThrows(IllegalStateException.class, () -> fixedTermService.withdraw(new FixedTermAccount(), withdrawAmount));
+    }
+
+    @Test
+    void doWithdraw_fromFixedTermAccount_throwsException() {
+        BigDecimal withdrawAmount = BigDecimal.valueOf(100);
+        assertThrows(IllegalStateException.class, () -> fixedTermService.doWithdraw(new FixedTermAccount(), withdrawAmount));
+    }
+
+    @Test
+    void doDeposit_validInputs_doesNotThrowError() {
+        FixedTermAccount fixedTermAccount = new FixedTermAccount("fixed1", "USD", 1, new UserAccount());
+        BigDecimal balance = BigDecimal.valueOf(100);
+
+        assertDoesNotThrow(() -> fixedTermServiceMock.doDeposit(fixedTermAccount, balance));
+    }
+
+    @Test
+    void doDeposit_accountBalanceMoreThanZero_throwsException() {
+        FixedTermAccount fixedTermAccount = new FixedTermAccount("fixed1", "USD", BigDecimal.valueOf(100), 1, new UserAccount());
+        BigDecimal balance = BigDecimal.valueOf(100);
+
+        assertThrows(IllegalStateException.class, () -> fixedTermService.doDeposit(fixedTermAccount, balance));
     }
 
     @Test

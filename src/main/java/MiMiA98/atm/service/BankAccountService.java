@@ -6,9 +6,14 @@ import MiMiA98.atm.entity.BankAccount;
 import java.math.BigDecimal;
 
 public abstract class BankAccountService {
-    private final BankAccountDAO bankAccountDAO = new BankAccountDAO();
+    private final BankAccountDAO bankAccountDAO;
 
     protected BankAccountService() {
+        bankAccountDAO = new BankAccountDAO();
+    }
+
+    protected BankAccountService(BankAccountDAO bankAccountDAO) {
+        this.bankAccountDAO = bankAccountDAO;
     }
 
     void validateAccountStatus(BankAccount account) {

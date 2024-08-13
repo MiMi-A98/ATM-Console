@@ -8,7 +8,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class SavingsService extends BankAccountService {
-    private final SavingsDAO savingsDAO = new SavingsDAO();
+    private final SavingsDAO savingsDAO;
+
+    public SavingsService() {
+        this.savingsDAO = new SavingsDAO();
+    }
+
+    public SavingsService(SavingsDAO savingsDAO) {
+        this.savingsDAO = savingsDAO;
+    }
 
     private BigDecimal calculateInterest(BankAccount bankAccount) {
         if (bankAccount == null) {

@@ -4,7 +4,16 @@ import MiMiA98.atm.dao.CardDAO;
 import MiMiA98.atm.entity.Card;
 
 public class CardService {
-    private final CardDAO cardDAO = new CardDAO();
+    private final CardDAO cardDAO;
+
+    public CardService() {
+        this.cardDAO = new CardDAO();
+    }
+
+    public CardService(CardDAO cardDAO) {
+        this.cardDAO = cardDAO;
+    }
+
 
     public void createCard(String cardNumber, String pin, String checkingAccountId) {
         if (cardNumber == null || cardNumber.isEmpty()

@@ -7,7 +7,15 @@ import MiMiA98.atm.entity.FixedTermAccount;
 import java.math.BigDecimal;
 
 public class FixedTermService extends BankAccountService {
-    private final FixedTermDAO fixedTermDAO = new FixedTermDAO();
+    private final FixedTermDAO fixedTermDAO;
+
+    public FixedTermService() {
+        this.fixedTermDAO = new FixedTermDAO();
+    }
+
+    public FixedTermService(FixedTermDAO fixedTermDAO) {
+        this.fixedTermDAO = fixedTermDAO;
+    }
 
     private BigDecimal calculateInterest(BankAccount bankAccount) {
         if (bankAccount == null) {

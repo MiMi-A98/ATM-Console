@@ -8,6 +8,16 @@ import java.math.BigDecimal;
 
 public class CheckingAccountService extends BankAccountService {
     private final CheckingAccountDAO checkingAccountDAO = new CheckingAccountDAO();
+    private final CheckingAccountDAO checkingAccountDAO;
+
+    public CheckingAccountService() {
+        this.checkingAccountDAO = new CheckingAccountDAO();
+    }
+
+    public CheckingAccountService(CheckingAccountDAO checkingAccountDAO) {
+        this.checkingAccountDAO = checkingAccountDAO;
+    }
+
 
     @Override
     public void withdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {

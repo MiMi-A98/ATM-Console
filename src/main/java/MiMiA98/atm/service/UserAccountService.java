@@ -8,7 +8,15 @@ import java.util.List;
 
 public class UserAccountService {
 
-    private final UserAccountDAO userAccountDAO = new UserAccountDAO();
+    private final UserAccountDAO userAccountDAO;
+
+    public UserAccountService() {
+        this.userAccountDAO = new UserAccountDAO();
+    }
+
+    public UserAccountService(UserAccountDAO userAccountDAO) {
+        this.userAccountDAO = userAccountDAO;
+    }
 
     public void createUserAccount(String id, String userName) {
         if (id == null || id.isEmpty() || userName == null || userName.isEmpty()) {

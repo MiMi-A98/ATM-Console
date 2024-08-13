@@ -80,7 +80,5 @@ public abstract class BankAccount {
         return super.toString();
     }
 
-    public String toStringBasic() {
-        return "";
-    }
+    public abstract String toStringBasic();
 }

@@ -36,15 +36,9 @@ public class SavingsService extends BankAccountService {
     }
 
     @Override
-    public void withdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
-        if (getSavingsAccount(bankAccount.getAccountNumber()) != null
-                && getSavingsAccount(bankAccount.getAccountNumber()).getBalance().compareTo(withdrawAmount) >= 0) {
-
-            SavingsAccount savingsAccount = getSavingsAccount(bankAccount.getAccountNumber());
-            validateAccountStatus(savingsAccount);
-            BigDecimal newBalance = savingsAccount.getBalance().subtract(withdrawAmount);
-            updateSavingsAccountBalance(bankAccount.getAccountNumber(), newBalance);
-        }
+    public void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
+        BigDecimal newBalance = bankAccount.getBalance().subtract(withdrawAmount);
+        updateBalance(bankAccount.getAccountNumber(), newBalance);
     }
 
     @Override
@@ -108,6 +102,20 @@ public class SavingsService extends BankAccountService {
             throw new IllegalArgumentException("Account number is null or empty, or new period until maturity is zero!!");
         }
         savingsDAO.updateSavingsAccountTimePeriod(accountNumber, newPeriod);
+    }
+
+    public void updateSavingsAccountClosedState(String accountNumber) {
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            throw new IllegalArgumentException("Account number is null or empty!");
+        }
+        savingsDAO.updateSavingsAccountClosedState(accountNumber);
+    }
+
+    public void updateSavingsAccountFrozenState(String accountNumber, boolean frozenState) {
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            throw new IllegalArgumentException("Account number is null or empty!");
+        }
+        savingsDAO.updateSavingsAccountFrozenState(accountNumber, frozenState);
     }
 
     public void deleteSavingsAccount(String accountNumber) {

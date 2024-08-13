@@ -19,6 +19,11 @@ public class CheckingAccountService extends BankAccountService {
         this.checkingAccountDAO = checkingAccountDAO;
     }
 
+    @Override
+    public void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
+        BigDecimal newBalance = getBankAccount(bankAccount.getAccountNumber()).getBalance().subtract(withdrawAmount);
+        updateBalance(bankAccount.getAccountNumber(), newBalance);
+    }
 
     @Override
     public void doDeposit(BankAccount bankAccount, BigDecimal depositAmount) {

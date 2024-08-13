@@ -44,24 +44,17 @@ public abstract class BankAccountService {
             throw new IllegalArgumentException("Bank account or withdraw amount is null");
         }
 
-        final CheckingAccountService checkingAccountService = new CheckingAccountService();
-        final SavingsService savingsService = new SavingsService();
-        final FixedTermService fixedTermService = new FixedTermService();
-
         if (withdrawAmount.compareTo(BigDecimal.ZERO) > 0) {
-
-            if (bankAccount instanceof CheckingAccount) {
-                checkingAccountService.withdraw(bankAccount, withdrawAmount);
-            } else if (bankAccount instanceof SavingsAccount) {
-                savingsService.withdraw(bankAccount, withdrawAmount);
-            } else if (bankAccount instanceof FixedTermAccount) {
-                fixedTermService.withdraw(bankAccount, withdrawAmount);
+            BankAccount bankAccountActual = getBankAccount(bankAccount.getAccountNumber());
+            if (bankAccountActual != null && bankAccountActual.getBalance().compareTo(withdrawAmount) >= 0) {
+                validateAccountStatus(bankAccountActual);
+                doWithdraw(bankAccount, withdrawAmount);
+            } else {
+                throw new NullPointerException("Bank account is null!");
             }
-
         } else {
-            throw new IllegalArgumentException("Provided withdraw amount is less than zero!");
+            throw new IllegalArgumentException("Provided withdraw amount is lower than zero or higher than balance!");
         }
-
     }
 
     public void transfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
@@ -90,8 +83,12 @@ public abstract class BankAccountService {
     }
 
     public abstract BankAccount getBankAccount(String accountNumber);
+
     abstract void updateBalance(String accountNumber, BigDecimal newBalance);
+
     abstract void doDeposit(BankAccount bankAccount, BigDecimal depositAmount);
+
+    abstract void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount);
 
 }
 

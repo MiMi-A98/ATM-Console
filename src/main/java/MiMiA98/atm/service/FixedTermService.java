@@ -37,9 +37,12 @@ public class FixedTermService extends BankAccountService {
 
     @Override
     public void withdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
-        if (getFixedTermAccount(bankAccount.getAccountNumber()) != null) {
-            throw new IllegalStateException("Can't withdraw from fix term account");
-        }
+        doWithdraw(bankAccount, withdrawAmount);
+    }
+
+    @Override
+    void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
+        throw new IllegalStateException("Can't withdraw from fix term account");
     }
 
     @Override
@@ -94,8 +97,8 @@ public class FixedTermService extends BankAccountService {
         fixedTermDAO.updateFixedTermAccountBalance(accountNumber, newBalance);
     }
 
-    public void updateFixedTermAccountTerm(String accountNumber, double newInterestRate) {
-        if (accountNumber == null || accountNumber.isEmpty() || newInterestRate == 0) {
+    public void updateFixedTermAccountInterestRate(String accountNumber, double newInterestRate) {
+        if (accountNumber == null || accountNumber.isEmpty() || newInterestRate <= 0) {
             throw new IllegalArgumentException("Account number is null or empty, or new interest rate is zero!");
         }
         fixedTermDAO.updateFixedTermAccountInterestRate(accountNumber, newInterestRate);

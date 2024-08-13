@@ -1,16 +1,14 @@
 package MiMiA98.atm.service;
 
+import MiMiA98.atm.dao.BankAccountDAO;
 import MiMiA98.atm.entity.BankAccount;
-import MiMiA98.atm.entity.CheckingAccount;
-import MiMiA98.atm.entity.FixedTermAccount;
-import MiMiA98.atm.entity.SavingsAccount;
 
 import java.math.BigDecimal;
 
 public abstract class BankAccountService {
     private final BankAccountDAO bankAccountDAO = new BankAccountDAO();
 
-    public BankAccountService() {
+    protected BankAccountService() {
     }
 
     void validateAccountStatus(BankAccount account) {
@@ -27,21 +25,15 @@ public abstract class BankAccountService {
             throw new IllegalArgumentException("Bank account or deposit amount is null");
         }
 
-        final CheckingAccountService checkingAccountService = new CheckingAccountService();
-        final SavingsService savingsService = new SavingsService();
-        final FixedTermService fixedTermService = new FixedTermService();
-
         if (depositAmount.compareTo(BigDecimal.ZERO) > 0) {
 
-
-            if (bankAccount instanceof CheckingAccount) {
-                checkingAccountService.deposit(bankAccount, depositAmount);
-            } else if (bankAccount instanceof SavingsAccount) {
-                savingsService.deposit(bankAccount, depositAmount);
-            } else if (bankAccount instanceof FixedTermAccount) {
-                fixedTermService.deposit(bankAccount, depositAmount);
+            BankAccount bankAccountActual = getBankAccount(bankAccount.getAccountNumber());
+            if (bankAccountActual != null) {
+                validateAccountStatus(bankAccountActual);
+                doDeposit(bankAccount, depositAmount);
+            } else {
+                throw new NullPointerException("Bank account is null!");
             }
-
         } else {
             throw new IllegalArgumentException("Provided deposit amount is less than zero!");
         }
@@ -97,6 +89,9 @@ public abstract class BankAccountService {
         }
     }
 
+    public abstract BankAccount getBankAccount(String accountNumber);
+    abstract void updateBalance(String accountNumber, BigDecimal newBalance);
+    abstract void doDeposit(BankAccount bankAccount, BigDecimal depositAmount);
 
 }
 

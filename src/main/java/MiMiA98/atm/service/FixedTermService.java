@@ -6,6 +6,8 @@ import MiMiA98.atm.entity.FixedTermAccount;
 
 import java.math.BigDecimal;
 
+import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
+
 public class FixedTermService extends BankAccountService {
     private final FixedTermDAO fixedTermDAO;
 
@@ -41,15 +43,11 @@ public class FixedTermService extends BankAccountService {
     }
 
     @Override
-    public void deposit(BankAccount bankAccount, BigDecimal depositAmount) {
-        if (getFixedTermAccount(bankAccount.getAccountNumber()) != null) {
-            FixedTermAccount fixedTermAccount = getFixedTermAccount(bankAccount.getAccountNumber());
-            validateAccountStatus(fixedTermAccount);
-            if (fixedTermAccount.getBalance() != null || fixedTermAccount.getBalance().compareTo(BigDecimal.valueOf(0)) > 0) {
-                throw new IllegalStateException("Can't deposit money in an initialized fix term account");
-            } else {
-                updateFixedTermAccountBalance(bankAccount.getAccountNumber(), depositAmount);
-            }
+    public void doDeposit(BankAccount bankAccount, BigDecimal depositAmount) {
+        if (bankAccount.getBalance().compareTo(BigDecimal.valueOf(0)) > 0) {
+            throw new IllegalStateException("Can't deposit money in an initialized fix term account");
+        } else {
+            updateBalance(bankAccount.getAccountNumber(), depositAmount);
         }
     }
 
@@ -74,21 +72,23 @@ public class FixedTermService extends BankAccountService {
 
     public void createFixedTermAccount(String accountNumber, String userId, String currency, int termYears, BigDecimal initialAmount) {
         if (accountNumber == null || accountNumber.isEmpty() || userId == null || userId.isEmpty()
-                || currency == null || currency.isEmpty() || termYears == 0 || initialAmount == null) {
+                || currency == null || currency.isEmpty() || termYears <= 0 || initialAmount == null
+                || initialAmount.compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new IllegalArgumentException("All necessary information should be completed!");
         }
         fixedTermDAO.createFixedTermAccount(accountNumber, currency, initialAmount, termYears, userId);
     }
 
-    public FixedTermAccount getFixedTermAccount(String accountNumber) {
+    @Override
+    public FixedTermAccount getBankAccount(String accountNumber) {
         if (accountNumber == null || accountNumber.isEmpty()) {
             throw new IllegalArgumentException("Account number cannot be null or empty");
         }
         return fixedTermDAO.readFixedTermAccount(accountNumber);
     }
 
-    public void updateFixedTermAccountBalance(String accountNumber, BigDecimal newBalance) {
-        if (accountNumber == null || accountNumber.isEmpty() || newBalance == null) {
+    public void updateBalance(String accountNumber, BigDecimal newBalance) {
+        if (accountNumber == null || accountNumber.isEmpty() || newBalance == null || newBalance.compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new IllegalArgumentException("Account number or new balance is null or empty");
         }
         fixedTermDAO.updateFixedTermAccountBalance(accountNumber, newBalance);
@@ -116,7 +116,7 @@ public class FixedTermService extends BankAccountService {
     }
 
     public void updateFixedTermAccountTimePeriod(String accountNumber, int newPeriod) {
-        if (accountNumber == null || accountNumber.isEmpty() || newPeriod == 0) {
+        if (accountNumber == null || accountNumber.isEmpty() || newPeriod <= 0) {
             throw new IllegalArgumentException("Account number is null or empty, or new period until maturity is zero!!");
         }
         fixedTermDAO.updateFixedTermAccountTimePeriod(accountNumber, newPeriod);

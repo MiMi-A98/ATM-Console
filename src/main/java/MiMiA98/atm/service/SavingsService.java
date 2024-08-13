@@ -7,6 +7,8 @@ import MiMiA98.atm.entity.SavingsAccount;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
+
 public class SavingsService extends BankAccountService {
     private final SavingsDAO savingsDAO;
 
@@ -46,14 +48,9 @@ public class SavingsService extends BankAccountService {
     }
 
     @Override
-    public void deposit(BankAccount bankAccount, BigDecimal depositAmount) {
-        if (getSavingsAccount(bankAccount.getAccountNumber()) != null) {
-            SavingsAccount savingsAccount = getSavingsAccount(bankAccount.getAccountNumber());
-            validateAccountStatus(savingsAccount);
-            BigDecimal newBalance = savingsAccount.getBalance().add(depositAmount);
-            updateSavingsAccountBalance(bankAccount.getAccountNumber(), newBalance);
-
-        }
+    public void doDeposit(BankAccount bankAccount, BigDecimal depositAmount) {
+        BigDecimal newBalance = bankAccount.getBalance().add(depositAmount);
+        updateBalance(bankAccount.getAccountNumber(), newBalance);
     }
 
     @Override
@@ -77,35 +74,37 @@ public class SavingsService extends BankAccountService {
 
     public void createSavingsAccount(String accountNumber, String currency, int timePeriod, String userId) {
         if (accountNumber == null || accountNumber.isEmpty() || userId == null || userId.isEmpty()
-                || currency == null || currency.isEmpty() || timePeriod == 0) {
+                || currency == null || currency.isEmpty() || timePeriod <= 0) {
             throw new IllegalArgumentException("All necessary information should be completed!");
         }
         savingsDAO.createSavingsAccount(accountNumber, currency, timePeriod, userId);
     }
 
-    public SavingsAccount getSavingsAccount(String accountNumber) {
+    @Override
+    public SavingsAccount getBankAccount(String accountNumber) {
         if (accountNumber == null || accountNumber.isEmpty()) {
             throw new IllegalArgumentException("Account number cannot be null or empty");
         }
         return savingsDAO.readSavingsAccount(accountNumber);
     }
 
-    public void updateSavingsAccountBalance(String accountNumber, BigDecimal newBalance) {
-        if (accountNumber == null || accountNumber.isEmpty() || newBalance == null) {
+    @Override
+    public void updateBalance(String accountNumber, BigDecimal newBalance) {
+        if (accountNumber == null || accountNumber.isEmpty() || newBalance == null || newBalance.compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new IllegalArgumentException("Account number or new balance is null or empty");
         }
         savingsDAO.updateSavingsAccountBalance(accountNumber, newBalance);
     }
 
     public void updateSavingsAccountInterestRate(String accountNumber, double newInterestRate) {
-        if (accountNumber == null || accountNumber.isEmpty() || newInterestRate == 0) {
+        if (accountNumber == null || accountNumber.isEmpty() || newInterestRate <= 0) {
             throw new IllegalArgumentException("Account number is null or empty, or new interest rate is zero!");
         }
         savingsDAO.updateSavingsAccountInterestRate(accountNumber, newInterestRate);
     }
 
     public void updateSavingsAccountTimePeriod(String accountNumber, int newPeriod) {
-        if (accountNumber == null || accountNumber.isEmpty() || newPeriod == 0) {
+        if (accountNumber == null || accountNumber.isEmpty() || newPeriod <= 0) {
             throw new IllegalArgumentException("Account number is null or empty, or new period until maturity is zero!!");
         }
         savingsDAO.updateSavingsAccountTimePeriod(accountNumber, newPeriod);

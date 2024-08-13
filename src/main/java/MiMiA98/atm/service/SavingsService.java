@@ -48,21 +48,20 @@ public class SavingsService extends BankAccountService {
     }
 
     @Override
-    public void transfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
-        SavingsAccount savingsAccount = getSavingsAccount(sourceAccount.getAccountNumber());
-        if ((savingsAccount.getBalance().compareTo(transferAmount)) == 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
+    public void doTransfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
+        SavingsAccount savingsAccount = getBankAccount(sourceAccount.getAccountNumber());
+        BigDecimal sourceNewBalance = savingsAccount.getBalance().subtract(transferAmount);
 
-            validateAccountStatus(savingsAccount);
-            if (LocalDate.now().isBefore(savingsAccount.getDateOfCreation().plusYears(savingsAccount.getTimePeriod()))) {
-                withdraw(sourceAccount, transferAmount);
-                deposit(destinationAccount, transferAmount);
-            } else {
-                BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(savingsAccount));
-                updateSavingsAccountBalance(sourceAccount.getAccountNumber(), savingsAccount.getBalance().subtract(transferAmount));
-                deposit(destinationAccount, transferAmountPlusInterest);
-            }
+        BankAccountService bankAccountService = getService(destinationAccount);
+        BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
+
+        if (LocalDate.now().isBefore(savingsAccount.getDateOfCreation().plusYears(savingsAccount.getTimePeriod()))) {
+            BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmount);
+            transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
         } else {
-            throw new IllegalArgumentException("Provided withdraw amount is lower than zero or lower than balance!");
+            BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(savingsAccount));
+            BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
+            transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
         }
     }
 

@@ -61,25 +61,20 @@ public abstract class BankAccountService {
         if (sourceAccount == null || destinationAccount == null || transferAmount == null) {
             throw new IllegalArgumentException("Source account, destination account or transfer amount is null");
         }
-        final FixedTermService fixedTermService = new FixedTermService();
-        final SavingsService savingsService = new SavingsService();
+
         if (sourceAccount.equals(destinationAccount)) {
             throw new IllegalArgumentException("Cannot transfer money into the same account!");
         }
 
-        if (fixedTermService.getFixedTermAccount(sourceAccount.getAccountNumber()) != null) {
-            fixedTermService.transfer(sourceAccount, destinationAccount, transferAmount);
-        } else if (savingsService.getSavingsAccount(sourceAccount.getAccountNumber()) != null) {
-            savingsService.transfer(sourceAccount, destinationAccount, transferAmount);
+        if (transferAmount.compareTo(BigDecimal.ZERO) > 0) {
+            doTransfer(sourceAccount, destinationAccount, transferAmount);
         } else {
-            if (transferAmount.compareTo(BigDecimal.ZERO) > 0) {
-                withdraw(sourceAccount, transferAmount);
-                deposit(destinationAccount, transferAmount);
-
-            } else {
-                throw new IllegalArgumentException("Invalid transfer amount: either less than zero or larger than the balance!");
-            }
+            throw new IllegalArgumentException("Invalid transfer amount: either less than zero or larger than the balance!");
         }
+    }
+
+    public void transferMoney(String sourceAccount, String destinationAccount, BigDecimal sourceBalance, BigDecimal destinationBalance) {
+        bankAccountDAO.transferMoney(sourceAccount, destinationAccount, sourceBalance, destinationBalance);
     }
 
     public abstract BankAccount getBankAccount(String accountNumber);
@@ -89,6 +84,8 @@ public abstract class BankAccountService {
     abstract void doDeposit(BankAccount bankAccount, BigDecimal depositAmount);
 
     abstract void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount);
+
+    abstract void doTransfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount);
 
 }
 

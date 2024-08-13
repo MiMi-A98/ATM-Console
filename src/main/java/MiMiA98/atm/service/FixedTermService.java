@@ -55,22 +55,20 @@ public class FixedTermService extends BankAccountService {
     }
 
     @Override
-    public void transfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
-
-        FixedTermAccount fixedTermAccount = fixedTermDAO.readFixedTermAccount(sourceAccount.getAccountNumber());
-        if ((fixedTermAccount.getBalance().compareTo(transferAmount)) == 0 && (transferAmount.compareTo(BigDecimal.valueOf(0)) > 0)) {
-
-            validateAccountStatus(fixedTermAccount);
-            if (!fixedTermAccount.isMatured()) {
-                throw new IllegalStateException("Didn't reach day of maturity!");
-            }
-            BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(fixedTermAccount));
-            updateFixedTermAccountBalance(sourceAccount.getAccountNumber(), fixedTermAccount.getBalance().subtract(transferAmount));
-            deposit(destinationAccount, transferAmountPlusInterest);
-            updateFixedTermAccountClosedState(destinationAccount.getAccountNumber());
-        } else {
-            throw new IllegalArgumentException("Provided withdraw amount is lower than zero or lower than balance!");
+    public void doTransfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
+        FixedTermAccount fixedTermAccount = getBankAccount(sourceAccount.getAccountNumber());
+        if (!fixedTermAccount.isMatured()) {
+            throw new IllegalStateException("Didn't reach day of maturity!");
         }
+        BigDecimal sourceNewBalance = fixedTermAccount.getBalance().subtract(transferAmount);
+
+        BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(fixedTermAccount));
+
+        BankAccountService bankAccountService = getService(destinationAccount);
+        BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
+        BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
+
+        transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
     }
 
     public void createFixedTermAccount(String accountNumber, String userId, String currency, int termYears, BigDecimal initialAmount) {

@@ -32,13 +32,15 @@ public class CheckingAccountService extends BankAccountService {
     }
 
     @Override
-    public void deposit(BankAccount bankAccount, BigDecimal depositAmount) {
-        if (getCheckingAccount(bankAccount.getAccountNumber()) != null) {
-            CheckingAccount checkingAccount = getCheckingAccount(bankAccount.getAccountNumber());
-            validateAccountStatus(checkingAccount);
-            BigDecimal newBalance = checkingAccount.getBalance().add(depositAmount);
-            updateCheckingAccountBalance(bankAccount.getAccountNumber(), newBalance);
-        }
+    void doTransfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
+
+        BigDecimal sourceNewBalance = (getBankAccount(sourceAccount.getAccountNumber()).getBalance()).subtract(transferAmount);
+
+        BankAccountService bankAccountService = getService(destinationAccount);
+        BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
+        BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmount);
+
+        transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
     }
 
     public void createCheckingAccount(String accountNumber, String currency, String userId) {

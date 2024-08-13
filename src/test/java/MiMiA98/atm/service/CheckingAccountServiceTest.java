@@ -12,16 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CheckingAccountServiceTest {
-
-    @Mock
-    CheckingAccountService checkingAccountServiceMock;
 
     @Mock
     CheckingAccountDAO checkingAccountDAO;
@@ -32,6 +28,26 @@ class CheckingAccountServiceTest {
     @BeforeEach
     public void setUp() {
         checkingAccountService = new CheckingAccountService(checkingAccountDAO);
+    }
+
+    @Test
+    void doDeposit_validInputs_doesNotThrowError() {
+        CheckingAccount checkingAccount = new CheckingAccount("c1", "USD", new UserAccount());
+        BigDecimal depositAmount = BigDecimal.valueOf(100);
+
+        when(checkingAccountService.getBankAccount(checkingAccount.getAccountNumber())).thenReturn(checkingAccount);
+
+        assertDoesNotThrow(() -> checkingAccountService.doDeposit(checkingAccount, depositAmount));
+    }
+
+    @Test
+    void doWithdraw_validCheckingAccount_doesNotThrowError() {
+        CheckingAccount checkingAccount = new CheckingAccount("c1", "USD", new UserAccount());
+        BigDecimal withdrawAmount = BigDecimal.valueOf(100);
+
+        when(checkingAccountService.getBankAccount(checkingAccount.getAccountNumber())).thenReturn(checkingAccount);
+
+        assertDoesNotThrow(() -> checkingAccountService.doDeposit(checkingAccount, withdrawAmount));
     }
 
     @Test

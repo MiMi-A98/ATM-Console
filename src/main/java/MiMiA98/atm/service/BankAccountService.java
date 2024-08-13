@@ -7,7 +7,11 @@ import MiMiA98.atm.entity.SavingsAccount;
 
 import java.math.BigDecimal;
 
-public class BankAccountService {
+public abstract class BankAccountService {
+    private final BankAccountDAO bankAccountDAO = new BankAccountDAO();
+
+    public BankAccountService() {
+    }
 
     void validateAccountStatus(BankAccount account) {
         if (account.isFrozen()) {

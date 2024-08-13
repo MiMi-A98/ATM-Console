@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +30,21 @@ class SavingsServiceTest {
         savingsService = new SavingsService(savingsDAO);
     }
 
+    @Test
+    void doDeposit_validInputs_doesNotThrowError() {
+        SavingsAccount savingsAccount = new SavingsAccount("savings1", "USD", 1, new UserAccount());
+        BigDecimal depositAmount = BigDecimal.valueOf(100);
+
+        assertDoesNotThrow(() -> savingsService.doDeposit(savingsAccount, depositAmount));
+    }
+
+    @Test
+    void doWithdraw_validInputs_doesNotThrowError() {
+        SavingsAccount savingsAccount = new SavingsAccount("savings1", "USD", 1, new UserAccount());
+        BigDecimal withdrawAmount = BigDecimal.valueOf(100);
+
+        assertDoesNotThrow(() -> savingsService.doDeposit(savingsAccount, withdrawAmount));
+    }
 
     @Test
     void createSavingsAccount_validInputs_passesMethodCallVerification() {

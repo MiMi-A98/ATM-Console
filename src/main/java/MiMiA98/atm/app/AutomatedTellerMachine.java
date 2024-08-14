@@ -1,8 +1,5 @@
-package MiMiA98.atm;
+package MiMiA98.atm.app;
 
-import MiMiA98.atm.app.ListScreen;
-import MiMiA98.atm.app.MenuScreen;
-import MiMiA98.atm.app.Screen;
 import MiMiA98.atm.dao.CardDAO;
 import MiMiA98.atm.dao.UserAccountDAO;
 import MiMiA98.atm.dao.UtilDAO;
@@ -22,6 +19,32 @@ public class AutomatedTellerMachine {
     private final UtilDAO utilDAO = new UtilDAO();
     private boolean isUserLoggedIn = false;
     private Card card;
+
+
+    public Card chooseCard() {
+
+        Collection<Card> cards = cardService.getAllCards();
+
+        Card chosenCard = null;
+
+        ListScreen<Card> listScreen = new ListScreen<>();
+        for (Card availeCard : cards) {
+
+            if (availeCard.isBlocked()) {
+                continue;
+            }
+            listScreen.addItem(new ListScreen.Item<>(availeCard.toString(), availeCard));
+
+        }
+        Screen.display("Choose card!");
+        try {
+            chosenCard = listScreen.chooseItem();
+        } catch (IllegalArgumentException e) {
+            chooseCard();
+        }
+
+        return chosenCard;
+    }
 
     public void login(Card card) {
         if (card.isBlocked()) {
@@ -185,12 +208,16 @@ public class AutomatedTellerMachine {
 
         ListScreen<BankAccount> listScreen = new ListScreen<>();
         for (BankAccount bankAccount : bankAccounts) {
-            if ((bankAccount instanceof FixedTermAccount) && !((FixedTermAccount) bankAccount).isMatured()) {
-                continue;
+            if (bankAccounts.size() <= 1) {
+                Screen.display("Unable to make operation! You only have one account!");
+                break;
+            } else {
+                if ((bankAccount instanceof FixedTermAccount) && !((FixedTermAccount) bankAccount).isMatured()) {
+                    continue;
+                }
+                listScreen.addItem(new ListScreen.Item<>(bankAccount.toStringBasic(), bankAccount));
             }
-            listScreen.addItem(new ListScreen.Item<>(bankAccount.toStringBasic(), bankAccount));
         }
-
         Screen.display("Choose account from which you want to transfer!");
         try {
             transferFromAccount = listScreen.chooseItem();

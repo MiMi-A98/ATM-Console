@@ -5,6 +5,9 @@ import MiMiA98.atm.entity.CheckingAccount;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.TypedQuery;
+
+import java.util.List;
 
 public class CardDAO {
     private CheckingAccountDAO checkingAccountDAO = new CheckingAccountDAO();
@@ -35,6 +38,19 @@ public class CardDAO {
         }
     }
 
+    public List<Card> readAllCards() {
+        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
+
+            String jpql = """
+                    select ca from Card ca
+                    """;
+            TypedQuery<Card> query = entityManager.createQuery(jpql, Card.class);
+
+            return query.getResultList();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public void updateCardPin(String cardNumber, String newPIN) {
         EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();

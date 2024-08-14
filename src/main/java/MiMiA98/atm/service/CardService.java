@@ -3,6 +3,8 @@ package MiMiA98.atm.service;
 import MiMiA98.atm.dao.CardDAO;
 import MiMiA98.atm.entity.Card;
 
+import java.util.List;
+
 public class CardService {
     private final CardDAO cardDAO;
 
@@ -29,6 +31,10 @@ public class CardService {
             throw new IllegalArgumentException("Card number cannot be null or empty");
         }
         return cardDAO.readCard(cardNumber);
+    }
+
+    public List<Card> getAllCards() {
+        return cardDAO.readAllCards();
     }
 
     public void updateCardPin(String cardNumber, String newPIN) {

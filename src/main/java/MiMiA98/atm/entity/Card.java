@@ -62,4 +62,11 @@ public class Card {
     public CheckingAccount getCheckingAccount() {
         return checkingAccount;
     }
+
+    @Override
+    public String toString() {
+        return "CardNumber: " + cardNumber + "\n" +
+                "Account: " + checkingAccount.getAccountNumber() + "\n" +
+                "Pin: " + pin + "\n";
+    }
 }

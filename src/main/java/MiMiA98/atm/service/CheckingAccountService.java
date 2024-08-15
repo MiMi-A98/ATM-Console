@@ -31,14 +31,20 @@ public class CheckingAccountService extends BankAccountService {
 
     @Override
     void doTransfer(BankAccount sourceAccount, BankAccount destinationAccount, BigDecimal transferAmount) {
+        CheckingAccount checkingAccount = getBankAccount(sourceAccount.getAccountNumber());
+        BigDecimal accountBalance = checkingAccount.getBalance();
 
-        BigDecimal sourceNewBalance = (getBankAccount(sourceAccount.getAccountNumber()).getBalance()).subtract(transferAmount);
+        if (accountBalance.compareTo(transferAmount) >= 0) {
+            BigDecimal sourceNewBalance = accountBalance.subtract(transferAmount);
 
-        BankAccountService bankAccountService = BankAccountServiceLocator.getService(destinationAccount);
-        BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
-        BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmount);
+            BankAccountService bankAccountService = BankAccountServiceLocator.getService(destinationAccount);
+            BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
+            BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmount);
 
-        transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
+            transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
+        } else {
+            throw new IllegalStateException("Transfer amount is higher than account balance!");
+        }
     }
 
     public void createCheckingAccount(String accountNumber, String currency, String userId) {

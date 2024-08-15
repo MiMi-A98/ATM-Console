@@ -60,15 +60,22 @@ public class FixedTermService extends BankAccountService {
         if (!fixedTermAccount.isMatured()) {
             throw new IllegalStateException("Didn't reach day of maturity!");
         }
-        BigDecimal sourceNewBalance = fixedTermAccount.getBalance().subtract(transferAmount);
 
-        BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(fixedTermAccount));
+        BigDecimal accountBalance = fixedTermAccount.getBalance();
 
-        BankAccountService bankAccountService = getService(destinationAccount);
-        BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
-        BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
+        if (accountBalance.compareTo(transferAmount) >= 0) {
+            BigDecimal sourceNewBalance = fixedTermAccount.getBalance().subtract(transferAmount);
 
-        transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
+            BigDecimal transferAmountPlusInterest = transferAmount.add(calculateInterest(fixedTermAccount));
+
+            BankAccountService bankAccountService = getService(destinationAccount);
+            BankAccount destinationBankAccount = bankAccountService.getBankAccount(destinationAccount.getAccountNumber());
+            BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
+
+            transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
+        } else {
+            throw new IllegalStateException("Transfer amount is higher than account balance!");
+        }
     }
 
     public void createFixedTermAccount(String accountNumber, String userId, String currency, int termYears, BigDecimal initialAmount) {

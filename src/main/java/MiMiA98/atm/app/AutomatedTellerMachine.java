@@ -1,7 +1,6 @@
 package MiMiA98.atm.app;
 
 import MiMiA98.atm.dao.CardDAO;
-import MiMiA98.atm.dao.UserAccountDAO;
 import MiMiA98.atm.dao.UtilDAO;
 import MiMiA98.atm.entity.*;
 import MiMiA98.atm.service.BankAccountService;
@@ -14,7 +13,7 @@ import java.util.Collection;
 import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
 
 public class AutomatedTellerMachine {
-    private final UserAccountService userAccountService = new UserAccountService(new UserAccountDAO());
+    private final UserAccountService userAccountService = new UserAccountService();
     private final CardService cardService = new CardService(new CardDAO());
     private final UtilDAO utilDAO = new UtilDAO();
     private boolean isUserLoggedIn = false;

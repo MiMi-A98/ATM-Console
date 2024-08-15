@@ -4,7 +4,9 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 public class UtilDAO {
-    private final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("atm_database");
+
+    private static String persistenceUnitName;
+    private static EntityManagerFactory entityManagerFactory;
 
     public void closeEntityManagerFactory() {
         if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
@@ -16,4 +18,9 @@ public class UtilDAO {
         return entityManagerFactory;
     }
 
+
+    public static void setPersistenceUnit(String persistenceUnit) {
+        persistenceUnitName = persistenceUnit;
+        entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnitName);
+    }
 }

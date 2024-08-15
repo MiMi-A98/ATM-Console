@@ -10,8 +10,8 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class CardDAO {
-    private CheckingAccountDAO checkingAccountDAO = new CheckingAccountDAO();
-    private UtilDAO utilDAO = new UtilDAO();
+    private final CheckingAccountDAO checkingAccountDAO = new CheckingAccountDAO();
+    private final UtilDAO utilDAO = new UtilDAO();
 
     public void createCard(String cardNumber, String pin, String checkingAccountId) {
         EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 public class SavingsDAO {
     private final UtilDAO utilDAO = new UtilDAO();
-    UserAccountDAO userAccountDAO = new UserAccountDAO();
+    private final UserAccountDAO userAccountDAO = new UserAccountDAO();
 
     public void createSavingsAccount(String accountNumber, String currency, int timePeriod, String userId) {
         EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();

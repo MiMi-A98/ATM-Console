@@ -9,8 +9,8 @@ import jakarta.persistence.PersistenceException;
 import java.math.BigDecimal;
 
 public class FixedTermDAO {
-    UserAccountDAO userAccountDAO = new UserAccountDAO();
-    private UtilDAO utilDAO = new UtilDAO();
+    private final UserAccountDAO userAccountDAO = new UserAccountDAO();
+    private final UtilDAO utilDAO = new UtilDAO();
 
     public void createFixedTermAccount(String accountNumber, String currency, BigDecimal balance, int timeOfMaturity, String userId) {
         EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();

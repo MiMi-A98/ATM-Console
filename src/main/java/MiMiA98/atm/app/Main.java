@@ -13,9 +13,11 @@ public class Main {
         AutomatedTellerMachine atm = new AutomatedTellerMachine();
 
         try {
+
             setPersistenceUnit("h2_database");
 
             initializeData();
+
 
             Card card = atm.chooseCard();
             atm.login(card);

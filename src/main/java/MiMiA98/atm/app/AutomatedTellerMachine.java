@@ -120,7 +120,9 @@ public class AutomatedTellerMachine {
     private void viewBalance() {
         validateLogin();
         CheckingAccount checkingAccount = card.getCheckingAccount();
-        Screen.display("Your balance is: " + checkingAccount.getBalance());
+        BankAccountService bankAccountService = getService(checkingAccount);
+        BigDecimal balance = bankAccountService.getBankAccount(checkingAccount.getAccountNumber()).getBalance();
+        Screen.display("Your balance is: " + balance);
 
         navigateToMainMenuOrLogout();
     }
@@ -128,18 +130,19 @@ public class AutomatedTellerMachine {
     private void withdraw() {
         validateLogin();
         CheckingAccount checkingAccount = card.getCheckingAccount();
+        BankAccountService bankAccountService = getService(checkingAccount);
 
-        Screen.display("Your balance is: " + checkingAccount.getBalance());
+        Screen.display("Your balance is: " + bankAccountService.getBankAccount(checkingAccount.getAccountNumber()).getBalance());
 
         Screen.display("Enter withdraw amount!");
         BigDecimal withdrawAmount = BigDecimal.valueOf(Screen.getInputDouble());
 
 
         try {
-            BankAccountService bankAccountService = getService(checkingAccount);
+
             bankAccountService.withdraw(checkingAccount, withdrawAmount);
             Screen.display("Operation processed successfully!");
-            Screen.display("Your new balance is: " + checkingAccount.getBalance());
+            Screen.display("Your new balance is: " + bankAccountService.getBankAccount(checkingAccount.getAccountNumber()).getBalance());
 
         } catch (Exception ex) {
             Screen.display("Error during withdrawal: " + ex.getMessage());
@@ -158,7 +161,7 @@ public class AutomatedTellerMachine {
 
         BankAccountService bankAccountService = getService(checkingAccount);
         bankAccountService.deposit(checkingAccount, depositAmount);
-        Screen.display("Your total balance is: " + checkingAccount.getBalance());
+        Screen.display("Your total balance is: " + bankAccountService.getBankAccount(checkingAccount.getAccountNumber()).getBalance());
 
         navigateToMainMenuOrLogout();
     }

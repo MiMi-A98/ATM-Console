@@ -4,8 +4,10 @@ package MiMiA98.atm.app;
 import MiMiA98.atm.dao.UtilDAO;
 import MiMiA98.atm.entity.Card;
 import MiMiA98.atm.service.*;
+import org.h2.tools.Server;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 public class Main {
 
@@ -17,7 +19,6 @@ public class Main {
             setPersistenceUnit("h2_database");
 
             initializeData();
-
 
             Card card = atm.chooseCard();
             atm.login(card);
@@ -59,5 +60,19 @@ public class Main {
 
     public static void setPersistenceUnit(String persistenceUnitName) {
         UtilDAO.setPersistenceUnit(persistenceUnitName);
+
+        if (persistenceUnitName.equals("h2_database")) {
+            startH2Server();
+        }
     }
+
+    public static void startH2Server() {
+        try {
+            Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
+            System.out.println("H2 Console started at: http://localhost:8082");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }

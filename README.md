@@ -24,7 +24,8 @@ of object-oriented programming principles in a financial application context.
       a high-level abstraction for database interactions.
 - **Maven:** Dependency management and build automation tool that ensures all required libraries are included and
   up-to-date.
-- **MySQL:** Default relational database management system used for persisting ATM data.
+- **MySQL:** Relational database management system used for persisting ATM data.
+- **H2:** Default relational database management system used for persisting ATM data.
 
 ## Class diagram
 
@@ -48,8 +49,7 @@ maintenance.
 ### Prerequisites
 
 - JDK 21
-- a DBMS (MySQL is configured by default)
-- Database data added manually before running the app
+- a DBMS (H2 is configured by default)
 
 ### Steps
 

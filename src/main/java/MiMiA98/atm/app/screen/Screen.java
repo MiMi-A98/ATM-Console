@@ -1,4 +1,4 @@
-package MiMiA98.atm.app;
+package MiMiA98.atm.app.screen;
 
 import java.util.Scanner;
 

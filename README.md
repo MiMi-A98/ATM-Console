@@ -24,8 +24,9 @@ of object-oriented programming principles in a financial application context.
       a high-level abstraction for database interactions.
 - **Maven:** Dependency management and build automation tool that ensures all required libraries are included and
   up-to-date.
-- **MySQL:** Relational database management system used for persisting ATM data.
-- **H2:** Default relational database management system used for persisting ATM data.
+- **Databases:**
+    - **H2:** Default relational database management system used for persisting ATM data.
+    - **MySQL:** Relational database management system.
 
 ## Class diagram
 
@@ -44,12 +45,50 @@ maintenance.
 - **Entity classes**
   ![entity](projectDiagrams/entity.jpg)
 
+## Configuration
+
+- This app supports two types of databases: MySQL and H2. The persistence units for both databases are added in the
+  `persistence.xml` file found in `src\main\resources\META-INF`.
+- Configurations of the chosen persistence unit can be changed from `database-config.properties` file found
+  in `ATM-Console\database-config.properties`.
+
+In the `database-config.properties` file you will find four properties that can be changed.
+
+- `persistenceContext`: This field determines which database configuration the application should use.
+- `username`: This field is used to specify the username for connecting to the database.
+- `password`: This field is used to specify the password for the database connection.
+- `jdbc.connectionUrl`: This is the connection URL that the application uses to connect to the database.
+
+If you want to use H2 database you will need to:
+
+- `persistenceContext`: Set to `h2_database`. Indicates that the application should use an in-memory H2 database.
+- `username`: Since the `persistenceContext` is set to `h2_database`, no username is required, so this field is left
+  blank.
+- `password`: Similarly, no password is needed for the H2 database, so this field is left blank.
+- `jdbc.connectionUrl`:  Since `h2_database` is being used, this field is left blank because the application will use a
+  default in-memory H2 database connection.
+
+If you want to use MySQL database you will need to:
+
+- If you don't have the program, install MySQL in your PC.
+- Create a new schema in MySQL.
+
+In `database-config.properties` file:
+
+- `persistenceContext`: Set to `mySQL_database`. Indicates that the application should connect to a MySQL database.
+- `username`: Using MySQL, you would need to enter the database username here, like `username=root`.
+- `password`: Using MySQL, you would enter the corresponding password for the database user,
+  like `password=secretpassword`.
+- `jdbc.connectionUrl`: If you were to switch to using MySQL, you would need to provide the MySQL connection URL here.
+  Example: `jdbc:mysql://127.0.0.1:3306/<YOUR_DB_NAME>`.
+- After running the project one time, to facilitate the creation of the tables in your MySQL database, manually add data
+  in the MySQL database.
+
 ## Run Locally
 
 ### Prerequisites
 
 - JDK 21
-- a DBMS (H2 is configured by default)
 
 ### Steps
 
@@ -65,52 +104,16 @@ Go to the project directory
 cd my-project
 ```
 
-Configure database connection and dependencies:
-
-- In the `PERSISTENCE.XML` file found in `src\main\resources\META-INF` folder to match your database connection info
-
-```xml
-
-<persistence>
-    <persistence-unit name="<YOUR DB NAME>" transaction-type="RESOURCE_LOCAL">
-        ...
-        <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="<YOUR DB DRIVER>"/>
-            <property name="jakarta.persistence.jdbc.url" value="<YOUR DB URL>"/>
-            <property name="jakarta.persistence.jdbc.user" value="<YOUR DB USER>"/>
-            <property name="jakarta.persistence.jdbc.password" value="<YOUR DB PASSWORD>"/>
-
-            <property name="hibernate.dialect" value="org.hibernate.dialect.<YOUR DB DIALECT>"/>
-        </properties>
-    </persistence-unit>
-</persistence>
-```
-
-- In the `pom.xml` file found in the root folder, add the database connector dependency (default is MySQL)
-
-```xml
-
-<project>
-    <dependencies>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.2.0</version>
-        </dependency>
-    </dependencies>
-</project>
-```
-
 Compile the source code
 
 ```bash
-./mvnw clean compile
+./mvnw clean package
 ```
 
 Run the app
 
 ```bash
-./mvnw exec:java
+java -jar target/atm-console.jar
 ```
 
 ## Running Tests

@@ -3,6 +3,7 @@ package MiMiA98.atm.service;
 import MiMiA98.atm.dao.FixedTermDAO;
 import MiMiA98.atm.entity.BankAccount;
 import MiMiA98.atm.entity.FixedTermAccount;
+import MiMiA98.atm.entity.Transaction;
 
 import java.math.BigDecimal;
 
@@ -10,6 +11,7 @@ import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
 
 public class FixedTermService extends BankAccountService {
     private final FixedTermDAO fixedTermDAO;
+    private final TransactionService transactionService = new TransactionService();
 
     public FixedTermService() {
         this.fixedTermDAO = new FixedTermDAO();
@@ -51,6 +53,7 @@ public class FixedTermService extends BankAccountService {
             throw new IllegalStateException("Can't deposit money in an initialized fix term account");
         } else {
             updateBalance(bankAccount.getAccountNumber(), depositAmount);
+            transactionService.createTransaction(Transaction.Type.DEPOSIT, null, bankAccount, depositAmount);
         }
     }
 
@@ -73,6 +76,7 @@ public class FixedTermService extends BankAccountService {
             BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
 
             transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
+            transactionService.createTransaction(Transaction.Type.TRANSFER, sourceAccount, destinationAccount, transferAmount);
         } else {
             throw new IllegalStateException("Transfer amount is higher than account balance!");
         }

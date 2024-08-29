@@ -3,6 +3,7 @@ package MiMiA98.atm.service;
 import MiMiA98.atm.dao.SavingsDAO;
 import MiMiA98.atm.entity.BankAccount;
 import MiMiA98.atm.entity.SavingsAccount;
+import MiMiA98.atm.entity.Transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
 
 public class SavingsService extends BankAccountService {
     private final SavingsDAO savingsDAO;
+    private final TransactionService transactionService = new TransactionService();
 
     public SavingsService() {
         this.savingsDAO = new SavingsDAO();
@@ -39,12 +41,14 @@ public class SavingsService extends BankAccountService {
     public void doWithdraw(BankAccount bankAccount, BigDecimal withdrawAmount) {
         BigDecimal newBalance = bankAccount.getBalance().subtract(withdrawAmount);
         updateBalance(bankAccount.getAccountNumber(), newBalance);
+        transactionService.createTransaction(Transaction.Type.WITHDRAWAL, bankAccount, null, withdrawAmount);
     }
 
     @Override
     public void doDeposit(BankAccount bankAccount, BigDecimal depositAmount) {
         BigDecimal newBalance = bankAccount.getBalance().add(depositAmount);
         updateBalance(bankAccount.getAccountNumber(), newBalance);
+        transactionService.createTransaction(Transaction.Type.DEPOSIT, null, bankAccount, depositAmount);
     }
 
     @Override
@@ -66,6 +70,8 @@ public class SavingsService extends BankAccountService {
                 BigDecimal destinationNewBalance = destinationBankAccount.getBalance().add(transferAmountPlusInterest);
                 transferMoney(sourceAccount.getAccountNumber(), destinationAccount.getAccountNumber(), sourceNewBalance, destinationNewBalance);
             }
+
+            transactionService.createTransaction(Transaction.Type.TRANSFER, sourceAccount, destinationAccount, transferAmount);
         } else {
             throw new IllegalStateException("Transfer amount is higher than account balance!");
         }

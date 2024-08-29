@@ -3,13 +3,11 @@ package MiMiA98.atm.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
-@Table(name = "checking_account")
 public class CheckingAccount extends BankAccount {
 
     @OneToMany(mappedBy = "checkingAccount", cascade = CascadeType.ALL)

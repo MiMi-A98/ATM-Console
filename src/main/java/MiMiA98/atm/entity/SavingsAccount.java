@@ -1,12 +1,10 @@
 package MiMiA98.atm.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "savings_account")
 public class SavingsAccount extends DepositAccount {
 
     private static double INTEREST_RATE = 0.02;

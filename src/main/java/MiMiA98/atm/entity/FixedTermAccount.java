@@ -1,13 +1,11 @@
 package MiMiA98.atm.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "fixed_term_account")
 public class FixedTermAccount extends DepositAccount {
 
     private static double INTEREST_RATE = 0.06;
@@ -43,7 +41,7 @@ public class FixedTermAccount extends DepositAccount {
         return "Fixed term account" + "\n" +
                 "Currency: " + getCurrency() + "\n" +
                 "Balance: " + getBalance() + "\n" +
-                "Date of maturity: " + getDateOfMaturity() + "\n";
+                "Date of maturity: " + dateOfMaturity + "\n";
     }
 
     @Override
@@ -54,7 +52,7 @@ public class FixedTermAccount extends DepositAccount {
                 "Currency: " + getCurrency() + "\n" +
                 "Balance: " + getBalance() + "\n" +
                 "Interest rate: " + INTEREST_RATE + "\n" +
-                "Date of maturity: " + getDateOfMaturity() + "\n";
+                "Date of maturity: " + dateOfMaturity + "\n";
     }
 
 }

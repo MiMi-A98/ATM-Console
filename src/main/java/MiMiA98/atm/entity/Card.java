@@ -1,9 +1,11 @@
 package MiMiA98.atm.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-@Table(name = "Card")
 public class Card {
 
 

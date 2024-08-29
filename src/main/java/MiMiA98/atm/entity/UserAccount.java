@@ -1,11 +1,13 @@
 package MiMiA98.atm.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 import java.util.List;
 
 @Entity
-@Table(name = "UserAccount")
 public class UserAccount {
 
     @Id
@@ -40,6 +42,6 @@ public class UserAccount {
 
     @Override
     public String toString() {
-        return "Account number: " + getAccountNumber() + " , User name: " + getUserName();
+        return "Account number: " + accountNumber + " , User name: " + userName;
     }
 }

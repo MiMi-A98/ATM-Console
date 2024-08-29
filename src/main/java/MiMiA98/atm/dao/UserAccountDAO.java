@@ -10,12 +10,11 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class UserAccountDAO {
-    private final UtilDAO utilDAO = new UtilDAO();
 
     public void createUserAccount(String id, String userName) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             UserAccount userAccount = new UserAccount(id, userName);
             entityManager.persist(userAccount);
@@ -25,13 +24,11 @@ public class UserAccountDAO {
                 entityTransaction.rollback();
             }
             System.out.println("Error creating user account!");
-        } finally {
-            entityManager.close();
         }
     }
 
     public UserAccount readUserAccount(String id) {
-        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
+        try (EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager()) {
             return entityManager.find(UserAccount.class, id);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException();
@@ -39,7 +36,7 @@ public class UserAccountDAO {
     }
 
     public List<BankAccount> readAllAssociatedAccounts(String id) {
-        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
+        try (EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager()) {
 
             String jpql = """
                     select ba from BankAccount ba
@@ -51,13 +48,15 @@ public class UserAccountDAO {
             query.setParameter("userId", id);
 
             return query.getResultList();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void updateUserName(String id, String name) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             UserAccount userAccount = readUserAccount(id);
             if (userAccount == null) {
@@ -71,15 +70,13 @@ public class UserAccountDAO {
                 entityTransaction.rollback();
             }
             System.out.println("Error during update!");
-        } finally {
-            entityManager.close();
         }
     }
 
     public void deleteUserAccount(String id) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             UserAccount userAccount = entityManager.find(UserAccount.class, id);
             if (userAccount != null) {
@@ -93,8 +90,6 @@ public class UserAccountDAO {
                 entityTransaction.rollback();
             }
             System.out.println("Error during deletion!");
-        } finally {
-            entityManager.close();
         }
     }
 }

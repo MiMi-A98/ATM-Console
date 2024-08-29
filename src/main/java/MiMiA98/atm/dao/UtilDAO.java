@@ -1,5 +1,6 @@
 package MiMiA98.atm.dao;
 
+import MiMiA98.atm.app.screen.Screen;
 import MiMiA98.atm.service.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -17,14 +18,15 @@ import java.util.Properties;
 public class UtilDAO {
 
     private static EntityManagerFactory entityManagerFactory;
+    private static Server h2Server;
 
-    public void closeEntityManagerFactory() {
+    public static void closeEntityManagerFactory() {
         if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
             entityManagerFactory.close();
         }
     }
 
-    public EntityManagerFactory getEntityManagerFactory() {
+    public static EntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
     }
 
@@ -56,10 +58,17 @@ public class UtilDAO {
 
     public static void startH2Server() {
         try {
-            Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
+            h2Server = Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
             System.out.println("H2 Console started at: http://localhost:8082");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    public static void stopH2Server() {
+        if (h2Server != null) {
+            h2Server.stop();
+            Screen.display("H2 console stopped!");
         }
     }
 

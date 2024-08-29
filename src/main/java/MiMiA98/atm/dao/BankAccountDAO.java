@@ -8,13 +8,12 @@ import jakarta.persistence.PersistenceException;
 import java.math.BigDecimal;
 
 public class BankAccountDAO {
-    private final UtilDAO utilDAO = new UtilDAO();
 
     public void transferMoney(String sourceAccountNumber, String destinationAccountNumber, BigDecimal sourceBalance, BigDecimal destinationBalance) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
-        try {
+        try (entityManager) {
             entityTransaction.begin();
 
             BankAccount sourceAccount = entityManager.find(BankAccount.class, sourceAccountNumber);
@@ -32,8 +31,6 @@ public class BankAccountDAO {
                 entityTransaction.rollback();
             }
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 }

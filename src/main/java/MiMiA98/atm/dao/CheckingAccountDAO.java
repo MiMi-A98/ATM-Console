@@ -10,13 +10,11 @@ import java.math.BigDecimal;
 
 public class CheckingAccountDAO {
     private final UserAccountDAO userAccountDAO = new UserAccountDAO();
-    private final UtilDAO utilDAO = new UtilDAO();
-
 
     public void createCheckingAccount(String accountNumber, String currency, String userId) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             UserAccount userAccount = userAccountDAO.readUserAccount(userId);
             entityTransaction.begin();
             CheckingAccount checkingAccount = new CheckingAccount(accountNumber, currency, userAccount);
@@ -25,13 +23,11 @@ public class CheckingAccountDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 
     public CheckingAccount readCheckingAccount(String accountNumber) {
-        try (EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager()) {
+        try (EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager()) {
             return entityManager.find(CheckingAccount.class, accountNumber);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException();
@@ -39,9 +35,9 @@ public class CheckingAccountDAO {
     }
 
     public void updateCheckingAccountBalance(String accountNumber, BigDecimal newBalance) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             CheckingAccount checkingAccount = readCheckingAccount(accountNumber);
             checkingAccount.setBalance(newBalance);
@@ -50,15 +46,13 @@ public class CheckingAccountDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 
     public void updateCheckingAccountFrozenState(String accountNumber, boolean frozenState) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             CheckingAccount checkingAccount = readCheckingAccount(accountNumber);
             checkingAccount.setFrozen(frozenState);
@@ -67,15 +61,13 @@ public class CheckingAccountDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 
     public void updateCheckingAccountClosedState(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             CheckingAccount checkingAccount = readCheckingAccount(accountNumber);
             checkingAccount.closeAccount();
@@ -84,15 +76,13 @@ public class CheckingAccountDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 
     public void deleteCheckingAccount(String accountNumber) {
-        EntityManager entityManager = utilDAO.getEntityManagerFactory().createEntityManager();
+        EntityManager entityManager = UtilDAO.getEntityManagerFactory().createEntityManager();
         EntityTransaction entityTransaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
             entityTransaction.begin();
             CheckingAccount checkingAccount = readCheckingAccount(accountNumber);
             entityManager.remove(checkingAccount);
@@ -100,8 +90,6 @@ public class CheckingAccountDAO {
         } catch (PersistenceException e) {
             entityTransaction.rollback();
             System.out.println(e.getMessage());
-        } finally {
-            entityManager.close();
         }
     }
 

@@ -3,11 +3,11 @@ package MiMiA98.atm.app;
 import MiMiA98.atm.app.screen.ListScreen;
 import MiMiA98.atm.app.screen.MenuScreen;
 import MiMiA98.atm.app.screen.Screen;
-import MiMiA98.atm.dao.CardDAO;
 import MiMiA98.atm.dao.UtilDAO;
 import MiMiA98.atm.entity.*;
 import MiMiA98.atm.service.BankAccountService;
 import MiMiA98.atm.service.CardService;
+import MiMiA98.atm.service.TransactionService;
 import MiMiA98.atm.service.UserAccountService;
 
 import java.math.BigDecimal;
@@ -17,8 +17,8 @@ import static MiMiA98.atm.service.BankAccountServiceLocator.getService;
 
 public class AutomatedTellerMachine {
     private final UserAccountService userAccountService = new UserAccountService();
-    private final CardService cardService = new CardService(new CardDAO());
-    private final UtilDAO utilDAO = new UtilDAO();
+    private final CardService cardService = new CardService();
+    private final TransactionService transactionService = new TransactionService();
     private boolean isUserLoggedIn = false;
     private Card card;
 
@@ -26,6 +26,11 @@ public class AutomatedTellerMachine {
     public Card chooseCard() {
 
         Collection<Card> cards = cardService.getAllCards();
+
+        if (cards.isEmpty()) {
+            Screen.display("No cards available, can not log in! Exiting the app...");
+            throw new IllegalStateException("No cards retrieved from the database. Can not continue to login.");
+        }
 
         Card chosenCard = null;
 
@@ -42,7 +47,7 @@ public class AutomatedTellerMachine {
         try {
             chosenCard = listScreen.chooseItem();
         } catch (IllegalArgumentException e) {
-            chooseCard();
+            chosenCard = chooseCard();
         }
 
         return chosenCard;
@@ -90,7 +95,7 @@ public class AutomatedTellerMachine {
         validateLogin();
 
         MenuScreen menu = new MenuScreen(
-                new MenuScreen.Option("Checking account", () -> displayCheckingAccount()),
+                new MenuScreen.Option("Checking account options", () -> displayCheckingAccount()),
                 new MenuScreen.Option("Transfer", () -> transferMoney()),
                 new MenuScreen.Option("View bank accounts info", () -> viewAccountsInfo()),
                 new MenuScreen.Option("Change PIN", () -> changePin()),
@@ -110,6 +115,7 @@ public class AutomatedTellerMachine {
                 new MenuScreen.Option("View balance", () -> viewBalance()),
                 new MenuScreen.Option("Withdraw funds", () -> withdraw()),
                 new MenuScreen.Option("Deposit", () -> deposit()),
+                new MenuScreen.Option("View transactions", () -> viewAccountTransactions()),
                 new MenuScreen.Option("Back", () -> displayMainMenu()),
                 new MenuScreen.Option("Quit", () -> logout()));
 
@@ -276,6 +282,18 @@ public class AutomatedTellerMachine {
         navigateToMainMenuOrLogout();
     }
 
+    private void viewAccountTransactions() {
+        validateLogin();
+        CheckingAccount checkingAccount = card.getCheckingAccount();
+        Collection<Transaction> bankAccountTransactions = transactionService.readTransactions(checkingAccount.getAccountNumber());
+
+        for (Transaction transaction : bankAccountTransactions) {
+            Screen.display(transaction.toStringBasic());
+        }
+
+        navigateToMainMenuOrLogout();
+    }
+
     private void navigateToMainMenuOrLogout() {
         validateLogin();
 
@@ -316,6 +334,7 @@ public class AutomatedTellerMachine {
         Screen.display("Good bye!");
         isUserLoggedIn = false;
         card = null;
-        utilDAO.closeEntityManagerFactory();
+        UtilDAO.closeEntityManagerFactory();
+        UtilDAO.stopH2Server();
     }
 }

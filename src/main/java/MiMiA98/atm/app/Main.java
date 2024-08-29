@@ -8,7 +8,6 @@ public class Main {
 
     public static void main(String[] args) {
         AutomatedTellerMachine atm = new AutomatedTellerMachine();
-
         try {
 
             UtilDAO.initializePersistenceUnit();

@@ -9,12 +9,13 @@
         <class>MiMiA98/atm/SavingsAccount.java</class>
         <class>MiMiA98/atm/FixedTermAccount.java</class>
         <class>MiMiA98/atm/Card.java</class>
+        <class>MiMiA98/atm/Transaction.java</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1:3306/atm_database"/>
-            <property name="jakarta.persistence.jdbc.user" value="Mimi"/>
-            <property name="jakarta.persistence.jdbc.password" value="mimi1234"/>
+            <property name="jakarta.persistence.jdbc.url" value="YOUR_DB_URL"/>
+            <property name="jakarta.persistence.jdbc.user" value="YOUR_DB_USER"/>
+            <property name="jakarta.persistence.jdbc.password" value="YOUR_DB_PASSWORD"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
@@ -32,6 +33,7 @@
         <class>MiMiA98/atm/SavingsAccount.java</class>
         <class>MiMiA98/atm/FixedTermAccount.java</class>
         <class>MiMiA98/atm/Card.java</class>
+        <class>MiMiA98/atm/Transaction.java</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
@@ -44,6 +46,9 @@
             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="false"/>
+
+            <property name="hibernate.globally_quoted_identifiers" value="true"/>
+
         </properties>
 
     </persistence-unit>

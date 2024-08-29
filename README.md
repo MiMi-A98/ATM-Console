@@ -6,14 +6,14 @@ of object-oriented programming principles in a financial application context.
 
 ## Features
 
-- **Login:** Imitates the real-life authentication at an ATM using a card and PIN.
+- **Login:** Imitates accessing an ATM using a card and PIN.
 - **View accounts info:** Lets you see the basic info of the accounts you own. (Account type, Balance, etc.)
 - **View Balance:** Check the balance of the checking account associated to the current card.
 - **Withdraw Funds:** Withdraw money from the checking account associated to the current card.
 - **Deposit Funds:** Deposit money into the checking account associated to the current card.
 - **Transfer Money:** Transfer money between different owned bank accounts.
 - **Change PIN:** Change the card PIN.
-- **Logout:** Securely logout from the ATM system.
+- **Logout:** Imitates logging out of the ATM and exits the application.
 
 ## Tech Stack
 
@@ -24,71 +24,53 @@ of object-oriented programming principles in a financial application context.
       a high-level abstraction for database interactions.
 - **Maven:** Dependency management and build automation tool that ensures all required libraries are included and
   up-to-date.
-- **Databases:**
-    - **H2:** Default relational database management system used for persisting ATM data.
-    - **MySQL:** Relational database management system.
+- **Supported Databases:**
+    - **H2:** In-memory database accessed in a browser.
+    - **MySQL:** External database accessed via its relational database management system.
 
 ## Class diagram
 
-This project uses a layered architecture, a common approach to separate concerns, promote reusability, and facilitate
+This project uses a layered architecture, in order to separate concerns, promote reusability, and facilitate
 maintenance.
 
-- **Main app and utility classes**
-  ![ATM](projectDiagrams/ATM.jpg)
+- **Main app and screen utility classes**
+  ![ATM](projectDiagrams/ATM.png)
 
 - **Service classes**
-  ![service](projectDiagrams/service.jpg)
+  ![service](projectDiagrams/service.png)
 
 - **DAO classes**
-  ![dao](projectDiagrams/dao.jpg)
+  ![dao](projectDiagrams/dao.png)
 
 - **Entity classes**
-  ![entity](projectDiagrams/entity.jpg)
+  ![entity](projectDiagrams/entity.png)
 
 ## Configuration
 
-- This app supports two types of databases: MySQL and H2. The persistence units for both databases are added in the
-  `persistence.xml` file found in `src\main\resources\META-INF`.
-- Configurations of the chosen persistence unit can be changed from `database-config.properties` file found
-  in `ATM-Console\database-config.properties`.
+The `database-config.properties` file, found in the root directory, is used to set the connection details for the target
+database.
 
-In the `database-config.properties` file you will find four properties that can be changed.
+- H2 database configuration:
+    - `persistenceContext`: Set to `h2_database`.
+    - Leave other property values empty.
+    - By default, the database includes demo data while the app is running.
 
-- `persistenceContext`: This field determines which database configuration the application should use.
-- `username`: This field is used to specify the username for connecting to the database.
-- `password`: This field is used to specify the password for the database connection.
-- `jdbc.connectionUrl`: This is the connection URL that the application uses to connect to the database.
 
-If you want to use H2 database you will need to:
-
-- `persistenceContext`: Set to `h2_database`. Indicates that the application should use an in-memory H2 database.
-- `username`: Since the `persistenceContext` is set to `h2_database`, no username is required, so this field is left
-  blank.
-- `password`: Similarly, no password is needed for the H2 database, so this field is left blank.
-- `jdbc.connectionUrl`:  Since `h2_database` is being used, this field is left blank because the application will use a
-  default in-memory H2 database connection.
-
-If you want to use MySQL database you will need to:
-
-- If you don't have the program, install MySQL in your PC.
-- Create a new schema in MySQL.
-
-In `database-config.properties` file:
-
-- `persistenceContext`: Set to `mySQL_database`. Indicates that the application should connect to a MySQL database.
-- `username`: Using MySQL, you would need to enter the database username here, like `username=root`.
-- `password`: Using MySQL, you would enter the corresponding password for the database user,
-  like `password=secretpassword`.
-- `jdbc.connectionUrl`: If you were to switch to using MySQL, you would need to provide the MySQL connection URL here.
-  Example: `jdbc:mysql://127.0.0.1:3306/<YOUR_DB_NAME>`.
-- After running the project one time, to facilitate the creation of the tables in your MySQL database, manually add data
-  in the MySQL database.
+- MySQL database configuration:
+    - `persistenceContext`: Set to `mySQL_database`.
+    - `username`: The username used to access the MySQL DBMS.
+    - `password`: The password associated to the database user.
+    - `jdbc.connectionUrl`: The JDBC connection URL to the database.
+      Example: `jdbc:mysql://127.0.0.1:3306/<YOUR_DB_NAME>`.
+    - In order to create the database tables, run the application once. Data must be added manually via the MySQL DBMS.
 
 ## Run Locally
 
 ### Prerequisites
 
 - JDK 21
+- (If using H2) A web browser
+- (If using MySQL) MySQL DBMS configured and with added data
 
 ### Steps
 
@@ -104,7 +86,7 @@ Go to the project directory
 cd my-project
 ```
 
-Compile the source code
+Compile and package the project
 
 ```bash
 ./mvnw clean package
@@ -115,6 +97,15 @@ Run the app
 ```bash
 java -jar target/atm-console.jar
 ```
+
+To view the database in the H2 console, open `http://localhost:8082` in a browser while the app is running and fill in
+the details:
+
+- `Saved settings:` Select `Generic H2 (Embedded)`.
+- `Driver class:` Set to `org.h2.Driver`.
+- `JDBC URL:` Set to `jdbc:h2:file:~/h2_database;AUTO_SERVER=TRUE`.
+- `User name:` Set to `sa`.
+- `Password:` Leave empty.
 
 ## Running Tests
 
